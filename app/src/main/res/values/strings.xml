@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">RecollDroid</string>
+    <string name="top_app_bar_title">Recoll</string>
+    <string name="enter_recoll_query">Enter recoll query.</string>
+    <string name="recoll_icon">Recoll Icon</string>
+    <string name="preview_btn">Preview</string>
+    <string name="open_btn">Open</string>
+    <string name="snippets_btn">Snippets</string>
+    <string name="search_action">Search</string>
+    <string name="query_screen_title">Query</string>
+    <string name="results_screen_title">Results</string>
+    <string name="back_button">Back</string>
+    <string name="raw_detail_screen_title">Raw Detail</string>
+    <string name="preview_screen_title">Preview</string>
+    <string name="default_loading_message">Loading…</string>
+    <string name="snippets_list_screen_title">Snippets</string>
+    <string name="preview_no_current_result_err_msg">Preview is unavailable because a specific search result has not been selected.</string>
+    <string name="bad_url">Bad URL</string>
+    <string name="settings_button">Settings</string>
+    <string name="settings_screen_title">Settings</string>
+    <string name="confirmation_dialog">Confirmation Dialog</string>
+    <string name="show_raw_information">Show Raw Information</string>
+</resources>

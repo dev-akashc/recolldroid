@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+option java_package = "org.grating.recolldroid.ui.data";
+option java_multiple_files = true;
+
+message RecollDroidAccount {
+  string baseUrl = 1;
+  string username = 2;
+  string password = 3;
+}
+
+message DocumentLinkRewrite {
+  string search = 1;
+  string replace = 2;
+}
+
+message DownloadAccount {
+  string baseUrl = 1;
+  string username = 2;
+  string password = 3;
+}
+
+message RecollDroidSettings {
+  RecollDroidAccount recollAccount = 1;
+  repeated DocumentLinkRewrite rewrite = 2;
+  repeated DownloadAccount downloadAccount = 3;
+}

@@ -150,7 +150,7 @@ Patches, suggestions, complaints welcome.
 Graham Bygrave
 
 ## License
-GPL2
+GPL3 or later
 
 ## Project status
 Active development.

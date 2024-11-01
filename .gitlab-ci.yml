@@ -14,6 +14,7 @@ stages:
 
 variables:
   GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+  SECURE_FILES_DOWNLOAD_PATH: '.'
 
 before_script:
 - export GRADLE_USER_HOME=$(pwd)/.gradle
@@ -27,6 +28,7 @@ cache:
 build:
   stage: release
   script:
+    - curl --silent "https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer" | bash
     - ./gradlew clean assembleRelease
   artifacts:
     paths:

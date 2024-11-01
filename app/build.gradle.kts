@@ -25,10 +25,10 @@ android {
 
         signingConfigs {
             create("release") {
-                storeFile = file(providers.gradleProperty("RELEASE_KEYSTORE_FILE").get())
-                storePassword = providers.gradleProperty("RELEASE_KEYSTORE_PASSWORD").get()
-                keyAlias = providers.gradleProperty("RELEASE_KEY_ALIAS").get()
-                keyPassword = providers.gradleProperty("RELEASE_KEY_PASSWORD").get()
+                storeFile = file(System.getenv("RELEASE_KEYSTORE_FILE"))
+                storePassword = System.getenv("RELEASE_KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("RELEASE_KEY_ALIAS")
+                keyPassword = System.getenv("RELEASE_KEY_PASSWORD")
             }
         }
     }

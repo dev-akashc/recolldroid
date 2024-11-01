@@ -10,6 +10,7 @@ stages:
 - build
 
 build_android:
+  image: fabernovel/android:api-31-v1.6.1
   stage: build
   variables:
     SECURE_FILES_DOWNLOAD_PATH: './'

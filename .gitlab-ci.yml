@@ -14,7 +14,7 @@ stages:
 
 variables:
   GRADLE_OPTS: "-Dorg.gradle.daemon=false"
-  SECURE_FILES_DOWNLOAD_PATH: '.'
+  SECURE_FILES_DOWNLOAD_PATH: './app'
 
 before_script:
 - export GRADLE_USER_HOME=$(pwd)/.gradle

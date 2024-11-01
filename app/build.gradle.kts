@@ -22,6 +22,15 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        signingConfigs {
+            create("release") {
+                storeFile = file(providers.gradleProperty("RELEASE_KEYSTORE_FILE").get())
+                storePassword = providers.gradleProperty("RELEASE_KEYSTORE_PASSWORD").get()
+                keyAlias = providers.gradleProperty("RELEASE_KEY_ALIAS").get()
+                keyPassword = providers.gradleProperty("RELEASE_KEY_PASSWORD").get()
+            }
+        }
     }
 
     buildTypes {
@@ -29,6 +38,7 @@ android {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"),
                           "proguard-rules.pro")
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {

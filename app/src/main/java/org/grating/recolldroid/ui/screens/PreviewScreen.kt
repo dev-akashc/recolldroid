@@ -74,6 +74,5 @@ fun PreviewScreen(
 }
 
 private fun String.cleanup(): String {
-    return replace("<br>", "")
+    return replace("<br>", "").replace("&nbsp;", " ")
 }
-

@@ -121,7 +121,7 @@ fun RecollDroidUi(
                     onQueryChanged = viewModel::updateCurrentQuery,
                     onQueryExecuteRequest = {
                         viewModel.executeCurrentQuery()
-                        navController.navigate(RecollDroidScreen.Results.name)
+                        // navController.navigate(RecollDroidScreen.Results.name)
                     },
                     onPreviewShow = { result ->
                         viewModel.retrievePreview(result)

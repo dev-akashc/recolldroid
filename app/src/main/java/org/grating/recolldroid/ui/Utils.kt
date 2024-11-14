@@ -176,3 +176,8 @@ fun String.removeMinusMimes(): String {
         .replace(WHITESPACE, " ")
         .trim()
 }
+
+fun <E> MutableList<E>.prepend(e: E): MutableList<E> {
+    this.add(0, e)
+    return this
+}

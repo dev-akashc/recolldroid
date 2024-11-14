@@ -48,6 +48,7 @@ import org.grating.recolldroid.ui.data.RecollDroidSettings
 import org.grating.recolldroid.ui.data.SettingsRepository
 import org.grating.recolldroid.ui.logError
 import org.grating.recolldroid.ui.logInfo
+import org.grating.recolldroid.ui.prepend
 
 class RecollDroidViewModel(
     val errorLatch: ErrorLatch,
@@ -243,9 +244,10 @@ class RecollDroidViewModel(
 
     private fun rememberSearch() {
         val psb = _uiState.value.pendingSettings.toBuilder()
-        val pastSearches = psb.pastSearchList.toMutableSet(
-            psb.searchHistorySize.orDefault(DEFAULT_SEARCH_HIST_SZ) - 1)
-        pastSearches.add(_uiState.value.currentQuery.text)
+        val pastSearches = psb.pastSearchList
+            .toMutableList()
+            .prepend(_uiState.value.currentQuery.text)
+            .toMutableSet(psb.searchHistorySize.orDefault(DEFAULT_SEARCH_HIST_SZ) - 1)
         psb.clearPastSearch().addAllPastSearch(pastSearches)
         updatePendingSettings(psb.build())
         commitPendingSettings()

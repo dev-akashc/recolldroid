@@ -169,13 +169,21 @@ fun String.cleanup(): String {
         .replace("&gt;", ">")
 }
 
-private val MIME_MATCH = "-mime:\\S+".toRegex()
+private val PLUS_MIME_MATCH = "mime:\\S+".toRegex()
+private val MINUS_MIME_MATCH = "-mime:\\S+".toRegex()
 private val WHITESPACE = "\\s+".toRegex()
 fun String.removeMinusMimes(): String {
-    return replace(MIME_MATCH, "")
+    return replace(MINUS_MIME_MATCH, "")
         .replace(WHITESPACE, " ")
         .trim()
 }
+
+fun String.removePlusMimes(): String {
+    return replace(PLUS_MIME_MATCH, "")
+        .replace(WHITESPACE, " ")
+        .trim()
+}
+
 
 fun <E> MutableList<E>.prepend(e: E): MutableList<E> {
     this.add(0, e)

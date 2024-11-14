@@ -191,18 +191,18 @@ fun RecollDroidUi(
                                            append(uiState.currentResult!!.mType.rawType)
                                        }
                                    },
-                                   focusMessage = "This Type Only",
-                                   onFocusRequest = {
+                                   focusMessage = "Include This Type",
+                                   onIncludeRequest = {
                                        viewModel.updateCurrentQuery(
                                             "${uiState.currentQuery.text.removeMinusMimes()} " +
                                                    "mime:${uiState.currentResult!!.mType.rawType}"
                                        )
                                        navController.navigateUp()
                                    },
-                                   filterMessage = "Hide This Type",
-                                   onFilterRequest = {
+                                   filterMessage = "Exclude This Type",
+                                   onExcludeRequest = {
                                        viewModel.updateCurrentQuery(
-                                           "${uiState.currentQuery.text} " +
+                                           "${uiState.currentQuery.text.removePlusMimes()} " +
                                                    "-mime:${uiState.currentResult!!.mType.rawType}"
                                        )
                                        navController.navigateUp()

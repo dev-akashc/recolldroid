@@ -110,7 +110,7 @@ fun QueryBar(
                 }
                 .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable, true),
             enabled = true,
-            singleLine = true,
+            singleLine = false,
             trailingIcon = {
                 OutlinedIconButton(
                     onClick = {

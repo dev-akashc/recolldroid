@@ -13,6 +13,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -29,12 +30,13 @@ import org.grating.recolldroid.ui.model.RecollDroidViewModel
 fun FilterSearchDialog(
     viewModel: RecollDroidViewModel,
     message: AnnotatedString,
-    onFocusRequest: () -> Unit,
+    onIncludeRequest: () -> Unit,
     focusMessage: String,
-    onFilterRequest: () -> Unit,
+    onExcludeRequest: () -> Unit,
     filterMessage: String,
     onDismissRequest: () -> Unit
 ) {
+    val uiState = viewModel.uiState.collectAsState().value
     Surface(
         modifier = Modifier
             .wrapContentWidth()
@@ -44,11 +46,10 @@ fun FilterSearchDialog(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .padding(16.dp)
+            modifier = Modifier.padding(16.dp)
         ) {
             Image(
-                painter = painterResource(R.drawable.filter_search),
+                painter = painterResource(uiState.currentResult!!.mType.docType.typeIcon),
                 contentDescription = "Filter by MimeType",
                 modifier = Modifier
                     .size(100.dp)
@@ -58,7 +59,7 @@ fun FilterSearchDialog(
             Row {
                 TextButton(
                     onClick = {
-                        onFocusRequest()
+                        onIncludeRequest()
                         viewModel.clearConfirmableAction()
                     },
                     modifier = Modifier
@@ -67,7 +68,7 @@ fun FilterSearchDialog(
                 }
                 TextButton(
                     onClick = {
-                        onFilterRequest()
+                        onExcludeRequest()
                         viewModel.clearConfirmableAction()
                     },
                     modifier = Modifier

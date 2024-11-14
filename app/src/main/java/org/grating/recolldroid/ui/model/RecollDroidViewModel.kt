@@ -21,6 +21,7 @@ import android.content.Context
 import android.net.Uri
 import android.os.Environment
 import android.util.Base64
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -92,6 +93,17 @@ class RecollDroidViewModel(
         _uiState.update { currentState ->
             currentState.copy(
                 currentQuery = query
+            )
+        }
+    }
+
+    fun updateCurrentQuery(query: String) {
+        _uiState.update { state ->
+            state.copy(
+                currentQuery = TextFieldValue(
+                    text = query,
+                    selection = TextRange(query.length) // Move cursor to end.
+                )
             )
         }
     }

@@ -21,7 +21,6 @@ import android.content.Intent
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -39,7 +38,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
@@ -47,14 +45,16 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
-import org.grating.recolldroid.R
-import org.grating.recolldroid.ui.model.RecollDroidViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -62,14 +62,18 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
+import org.grating.recolldroid.R
 import org.grating.recolldroid.data.AppErrorState
 import org.grating.recolldroid.data.DownloadedDocumentState
+import org.grating.recolldroid.ui.model.RecollDroidViewModel
 import org.grating.recolldroid.ui.screens.PreviewScreen
 import org.grating.recolldroid.ui.screens.QueryScreen
 import org.grating.recolldroid.ui.screens.RawDetailsScreen
 import org.grating.recolldroid.ui.screens.ResultsScreen
-import org.grating.recolldroid.ui.screens.settings.SettingsScreen
 import org.grating.recolldroid.ui.screens.SnippetsScreen
+import org.grating.recolldroid.ui.screens.dialogs.ConfirmationDialog
+import org.grating.recolldroid.ui.screens.dialogs.FilterSearchDialog
+import org.grating.recolldroid.ui.screens.settings.SettingsScreen
 import java.io.File
 import java.net.URI
 
@@ -121,7 +125,6 @@ fun RecollDroidUi(
                     onQueryChanged = viewModel::updateCurrentQuery,
                     onQueryExecuteRequest = {
                         viewModel.executeCurrentQuery()
-                        // navController.navigate(RecollDroidScreen.Results.name)
                     },
                     onPreviewShow = { result ->
                         viewModel.retrievePreview(result)
@@ -151,6 +154,10 @@ fun RecollDroidUi(
                         viewModel.setCurrentResult(result)
                         navController.navigate(RecollDroidScreen.RawDetail.name)
                     },
+                    onMimeTypeClick = { result ->
+                        viewModel.setCurrentResult(result)
+                        navController.navigate(RecollDroidScreen.FilterMime.name)
+                    }
                 )
             }
             composable(route = RecollDroidScreen.RawDetail.name) {
@@ -170,6 +177,34 @@ fun RecollDroidUi(
                                    uiState.confirmationMessage,
                                    onConfirmRequest = {
                                        uiState.confirmableAction()
+                                       navController.navigateUp()
+                                   },
+                                   onDismissRequest = {
+                                       navController.navigateUp()
+                                   })
+            }
+            dialog(route = RecollDroidScreen.FilterMime.name) {
+                FilterSearchDialog(viewModel = viewModel,
+                                   message = buildAnnotatedString {
+                                       append("Filter current search for mime-type: ")
+                                       withStyle(style = SpanStyle(color = Color.Red)) {
+                                           append(uiState.currentResult!!.mType.rawType)
+                                       }
+                                   },
+                                   focusMessage = "This Type Only",
+                                   onFocusRequest = {
+                                       viewModel.updateCurrentQuery(
+                                            "${uiState.currentQuery.text.removeMinusMimes()} " +
+                                                   "mime:${uiState.currentResult!!.mType.rawType}"
+                                       )
+                                       navController.navigateUp()
+                                   },
+                                   filterMessage = "Hide This Type",
+                                   onFilterRequest = {
+                                       viewModel.updateCurrentQuery(
+                                           "${uiState.currentQuery.text} " +
+                                                   "-mime:${uiState.currentResult!!.mType.rawType}"
+                                       )
                                        navController.navigateUp()
                                    },
                                    onDismissRequest = {
@@ -252,59 +287,6 @@ private fun AppLevelErrorNotice(viewModel: RecollDroidViewModel) {
     }
 }
 
-/**
- * Composable for confirming a requested action that might potentially be painful.
- */
-@Composable
-private fun ConfirmationDialog(
-    viewModel: RecollDroidViewModel,
-    message: String,
-    onConfirmRequest: () -> Unit,
-    onDismissRequest: () -> Unit
-) {
-    Surface(
-        modifier = Modifier
-            .wrapContentWidth()
-            .wrapContentHeight(),
-        shape = MaterialTheme.shapes.large,
-        tonalElevation = AlertDialogDefaults.TonalElevation
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .padding(16.dp)
-        ) {
-            Image(
-                painter = painterResource(R.drawable.warning),
-                contentDescription = "Exercise Caution",
-                modifier = Modifier
-                    .size(100.dp)
-                    .padding(8.dp)
-            )
-            Text(text = message)
-            Row {
-                TextButton(
-                    onClick = {
-                        onDismissRequest()
-                    },
-                    modifier = Modifier
-                ) {
-                    Text("Cancel")
-                }
-                TextButton(
-                    onClick = {
-                        onConfirmRequest()
-                        viewModel.clearConfirmableAction()
-                    },
-                    modifier = Modifier
-                ) {
-                    Text("Confirm")
-                }
-            }
-        }
-    }
-}
-
 enum class RecollDroidScreen(@StringRes val title: Int) {
     Query(title = R.string.query_screen_title),
     Results(title = R.string.results_screen_title),
@@ -312,7 +294,8 @@ enum class RecollDroidScreen(@StringRes val title: Int) {
     Preview(title = R.string.preview_screen_title),
     Snippets(title = R.string.snippets_list_screen_title),
     Settings(title = R.string.settings_screen_title),
-    Confirmation(title = R.string.confirmation_dialog)
+    Confirmation(title = R.string.confirmation_dialog),
+    FilterMime(title = R.string.filter_mimetype_dialog)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

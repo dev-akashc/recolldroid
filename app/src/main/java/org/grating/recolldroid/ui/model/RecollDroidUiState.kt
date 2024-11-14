@@ -16,6 +16,7 @@
  */
 package org.grating.recolldroid.ui.model
 
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
@@ -60,7 +61,13 @@ data class RecollDroidUiState(
     val pendingSettings: RecollDroidSettings = RecollDroidSettings.getDefaultInstance(),
 
     val confirmationMessage: String = "",
-    val confirmableAction: () -> Unit = {}
+    val confirmableAction: () -> Unit = {},
+
+    val filterSearchMessage: AnnotatedString = AnnotatedString(""),
+    val focusSearchAction: () -> Unit = {},
+    val focusSearchActionMessage: String = "",
+    val filterSearchAction: () -> Unit = {},
+    val filterSearchActionMessage: String = "",
 )
 
 class CurrentResultNotSet : Exception("A current search result has not been set.")

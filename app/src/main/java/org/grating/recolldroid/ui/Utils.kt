@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -142,10 +141,6 @@ fun Any.logError(msg: Any) {
     Log.e(javaClass.simpleName, msg.toString())
 }
 
-fun Any.logInfo(msg: Any, e: Throwable) {
-    Log.i(javaClass.simpleName, msg.toString(), e)
-}
-
 fun Any.logInfo(msg: Any) {
     Log.i(javaClass.simpleName, msg.toString())
 }
@@ -172,4 +167,12 @@ fun String.cleanup(): String {
         .replace("&nbsp;", " ")
         .replace("&lt;", "<")
         .replace("&gt;", ">")
+}
+
+private val MIME_MATCH = "-mime:\\S+".toRegex()
+private val WHITESPACE = "\\s+".toRegex()
+fun String.removeMinusMimes(): String {
+    return replace(MIME_MATCH, "")
+        .replace(WHITESPACE, " ")
+        .trim()
 }

@@ -17,6 +17,7 @@
 package org.grating.recolldroid.ui.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -80,7 +81,8 @@ fun ResultsScreen(
     onPreviewShow: (RecollSearchResult) -> Unit,
     onOpenDocument: (RecollSearchResult) -> Unit,
     onSnippetsShow: (RecollSearchResult) -> Unit,
-    onRawDataShow: (RecollSearchResult) -> Unit
+    onRawDataShow: (RecollSearchResult) -> Unit,
+    onMimeTypeClick: (RecollSearchResult) -> Unit
 ) {
     Column {
         QueryBar(viewModel = viewModel,
@@ -95,6 +97,7 @@ fun ResultsScreen(
                 onOpenDocument = onOpenDocument,
                 onSnippetsShow = onSnippetsShow,
                 onResultInfoShow = onRawDataShow,
+                onMimeTypeClick = onMimeTypeClick,
                 modifier = modifier,
             )
 
@@ -112,6 +115,7 @@ fun PopulatedResults(
     onOpenDocument: (RecollSearchResult) -> Unit,
     onSnippetsShow: (RecollSearchResult) -> Unit,
     onResultInfoShow: (RecollSearchResult) -> Unit,
+    onMimeTypeClick: (RecollSearchResult) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = Modifier.fillMaxSize(),
@@ -141,6 +145,7 @@ fun PopulatedResults(
                            onOpenDocument = onOpenDocument,
                            onSnippetsShow = onSnippetsShow,
                            onResultInfoShow = onResultInfoShow,
+                           onMimeTypeClick = onMimeTypeClick,
                            modifier = modifier)
             }
 
@@ -159,6 +164,7 @@ fun ResultCard(
     onOpenDocument: (RecollSearchResult) -> Unit,
     onSnippetsShow: (RecollSearchResult) -> Unit,
     onResultInfoShow: (RecollSearchResult) -> Unit,
+    onMimeTypeClick: (RecollSearchResult) -> Unit,
     modifier: Modifier = Modifier
 ) {
     ElevatedCard(
@@ -174,7 +180,10 @@ fun ResultCard(
                     painter = painterResource(result.mType.docType.typeIcon),
                     contentDescription = result.mType.rawType,
                     modifier = Modifier
-                        .size(64.dp),
+                        .size(64.dp)
+                        .clickable {
+                            onMimeTypeClick(result)
+                        },
                     contentScale = ContentScale.Crop
                 )
                 Text(text = "#${result.idx + 1}",
@@ -206,7 +215,7 @@ fun ResultCard(
                     Spacer(modifier = Modifier.padding(4.dp))
                     Text(text =
                          if (result.dmTime > 0)
-                            result.dmTime.secondsToLocalDateTimeString()
+                             result.dmTime.secondsToLocalDateTimeString()
                          else
                              result.fmTime.secondsToLocalDateTimeString(),
                          style = MaterialTheme.typography.titleSmall)
@@ -216,7 +225,7 @@ fun ResultCard(
         Row {
             Text(text =
                  if (result.iPath.isBlank())
-                    result.snippetsAbstract.cleanup().doHighlight()
+                     result.snippetsAbstract.cleanup().doHighlight()
                  else
                      result.abstract.cleanup().doHighlight(),
                  Modifier.padding(8.dp))
@@ -262,10 +271,10 @@ fun ResultsError() {
 @Preview(showBackground = true)
 @Composable
 fun ResultCardPreview() {
-    val vm = RecollDroidViewModel(AlwaysOkErrorLatch,
-                                  AlwaysIdleDownloadedDocumentLatch,
-                                  FakeResultsRepository(),
-                                  FakeSettingsRepository())
+    RecollDroidViewModel(AlwaysOkErrorLatch,
+                         AlwaysIdleDownloadedDocumentLatch,
+                         FakeResultsRepository(),
+                         FakeSettingsRepository())
     RecollDroidTheme {
         ResultCard(
             result = FakeResultsDataProvider.getFirstResult(),
@@ -273,6 +282,7 @@ fun ResultCardPreview() {
             onOpenDocument = {},
             onSnippetsShow = {},
             onResultInfoShow = {},
+            onMimeTypeClick = {},
             modifier = Modifier
         )
     }
@@ -295,6 +305,7 @@ fun ResultsScreenPreview() {
             onPreviewShow = {},
             onOpenDocument = {},
             onSnippetsShow = {},
+            onMimeTypeClick = {},
             onRawDataShow = {}
         )
     }

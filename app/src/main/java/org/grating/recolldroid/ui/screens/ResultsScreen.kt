@@ -45,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
@@ -58,6 +59,7 @@ import org.grating.recolldroid.data.ResultSet
 import org.grating.recolldroid.data.fake.FakeResultsDataProvider
 import org.grating.recolldroid.data.fake.FakeResultsRepository
 import org.grating.recolldroid.ui.addLoadState
+import org.grating.recolldroid.ui.cleanup
 import org.grating.recolldroid.ui.data.fake.FakeSettingsRepository
 import org.grating.recolldroid.ui.doHighlight
 import org.grating.recolldroid.ui.model.QueryResponse
@@ -67,14 +69,13 @@ import org.grating.recolldroid.ui.readableFileSize
 import org.grating.recolldroid.ui.secondsToLocalDateTimeString
 import org.grating.recolldroid.ui.simpleVerticalScrollbar
 import org.grating.recolldroid.ui.theme.RecollDroidTheme
-import org.grating.recolldroid.ui.secondsToLocalDateTimeString
 
 
 @Composable
 fun ResultsScreen(
     viewModel: RecollDroidViewModel,
     modifier: Modifier = Modifier,
-    onQueryChanged: (query: String) -> Unit,
+    onQueryChanged: (query: TextFieldValue) -> Unit,
     onQueryExecuteRequest: () -> Unit,
     onPreviewShow: (RecollSearchResult) -> Unit,
     onOpenDocument: (RecollSearchResult) -> Unit,
@@ -89,7 +90,6 @@ fun ResultsScreen(
         val uiState = viewModel.uiState.collectAsState().value
         when (uiState.queryResponse) {
             is QueryResponse.Success -> PopulatedResults(
-                viewModel = viewModel,
                 pageFlow = uiState.queryResponse.result,
                 onPreviewShow = onPreviewShow,
                 onOpenDocument = onOpenDocument,
@@ -107,7 +107,6 @@ fun ResultsScreen(
 
 @Composable
 fun PopulatedResults(
-    viewModel: RecollDroidViewModel,
     pageFlow: Flow<PagingData<RecollSearchResult>>,
     onPreviewShow: (RecollSearchResult) -> Unit,
     onOpenDocument: (RecollSearchResult) -> Unit,
@@ -137,8 +136,7 @@ fun PopulatedResults(
         ) {
             // Display loaded items...
             items(results.itemCount) { index ->
-                ResultCard(viewModel = viewModel,
-                           result = results[index]!!,
+                ResultCard(result = results[index]!!,
                            onPreviewShow = onPreviewShow,
                            onOpenDocument = onOpenDocument,
                            onSnippetsShow = onSnippetsShow,
@@ -156,7 +154,6 @@ fun PopulatedResults(
 
 @Composable
 fun ResultCard(
-    viewModel: RecollDroidViewModel,
     result: RecollSearchResult,
     onPreviewShow: (RecollSearchResult) -> Unit,
     onOpenDocument: (RecollSearchResult) -> Unit,
@@ -219,9 +216,9 @@ fun ResultCard(
         Row {
             Text(text =
                  if (result.iPath.isBlank())
-                    result.snippetsAbstract.doHighlight()
+                    result.snippetsAbstract.cleanup().doHighlight()
                  else
-                     result.abstract.doHighlight(),
+                     result.abstract.cleanup().doHighlight(),
                  Modifier.padding(8.dp))
         }
         Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
@@ -271,7 +268,6 @@ fun ResultCardPreview() {
                                   FakeSettingsRepository())
     RecollDroidTheme {
         ResultCard(
-            viewModel = vm,
             result = FakeResultsDataProvider.getFirstResult(),
             onPreviewShow = {},
             onOpenDocument = {},
@@ -289,7 +285,7 @@ fun ResultsScreenPreview() {
                                   AlwaysIdleDownloadedDocumentLatch,
                                   FakeResultsRepository(),
                                   FakeSettingsRepository())
-    vm.updateCurrentQuery("Some query or other")
+    vm.updateCurrentQuery(TextFieldValue("Some query or other"))
     vm.executeCurrentQuery()
     RecollDroidTheme {
         ResultsScreen(

@@ -16,6 +16,7 @@
  */
 package org.grating.recolldroid.ui.model
 
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
 import org.grating.recolldroid.R
@@ -48,7 +49,7 @@ sealed interface SnippetsResponse {
 
 data class RecollDroidUiState(
     val manualRefresh: Int = 0,
-    val currentQuery: String = "",
+    val currentQuery: TextFieldValue = TextFieldValue(""),
     val queryResponse: QueryResponse = QueryResponse.None,
     val currentResult: RecollSearchResult? = null,
     val currentPreview: PreviewResponse = PreviewResponse.None,

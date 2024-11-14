@@ -50,6 +50,8 @@ private const val MB: Long = KB * KB
 private const val GB: Long = MB * KB
 private const val TB: Long = GB * KB
 
+const val DEFAULT_SEARCH_HIST_SZ = 10
+
 fun Long.readableFileSize(): String {
     return when {
         this < KB -> "$this b"
@@ -88,17 +90,10 @@ fun LoadingSpinner() {
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .size(96.dp)
     ) {
-//        Image(
-//            painter = painterResource(R.drawable.loading_img),
-//            contentDescription = stringResource(R.string.default_loading_message),
-//            modifier = Modifier
-//                .size(100.dp)
-//                .padding(8.dp)
-//        )
         CircularProgressIndicator(
-            modifier = Modifier.width(64.dp),
+            modifier = Modifier.size(96.dp),
             color = MaterialTheme.colorScheme.secondary,
             trackColor = MaterialTheme.colorScheme.surfaceVariant
         )
@@ -169,4 +164,12 @@ private val LOCAL_DAY_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 fun Long.secondsToLocalDateTimeString(): String {
     return ofInstant(Instant.ofEpochMilli(this*1000),
               ZoneId.systemDefault()).format(LOCAL_DAY_FORMATTER)
+}
+
+fun String.cleanup(): String {
+    return replace("<br>", "")
+        .replace("&amp;", "&")
+        .replace("&nbsp;", " ")
+        .replace("&lt;", "<")
+        .replace("&gt;", ">")
 }

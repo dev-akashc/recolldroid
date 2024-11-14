@@ -24,4 +24,6 @@ message RecollDroidSettings {
   RecollDroidAccount recollAccount = 1;
   repeated DocumentLinkRewrite rewrite = 2;
   repeated DownloadAccount downloadAccount = 3;
+  repeated string pastSearch = 4;
+  uint32 searchHistorySize = 5;
 }

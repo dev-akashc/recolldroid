@@ -30,6 +30,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.grating.recolldroid.ui.LoadingError
 import org.grating.recolldroid.ui.LoadingSpinner
+import org.grating.recolldroid.ui.cleanup
 import org.grating.recolldroid.ui.doHighlight
 import org.grating.recolldroid.ui.model.CurrentResultNotSet
 import org.grating.recolldroid.ui.model.PreviewResponse
@@ -39,8 +40,7 @@ import org.grating.recolldroid.ui.simpleVerticalScrollbar
 
 @Composable
 fun PreviewScreen(
-    viewModel: RecollDroidViewModel,
-    modifier: Modifier = Modifier
+    viewModel: RecollDroidViewModel
 ) {
     val uiState = viewModel.uiState.collectAsState().value
     val searchResult = uiState.currentResult ?: throw CurrentResultNotSet()
@@ -71,8 +71,4 @@ fun PreviewScreen(
             }
         }
     }
-}
-
-private fun String.cleanup(): String {
-    return replace("<br>", "").replace("&nbsp;", " ")
 }

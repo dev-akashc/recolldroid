@@ -17,7 +17,6 @@
 package org.grating.recolldroid.ui.screens
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -29,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.grating.recolldroid.ui.LoadingError
 import org.grating.recolldroid.ui.LoadingSpinner
+import org.grating.recolldroid.ui.cleanup
 import org.grating.recolldroid.ui.doHighlight
 import org.grating.recolldroid.ui.model.RecollDroidViewModel
 import org.grating.recolldroid.ui.model.SnippetsResponse
@@ -36,8 +36,7 @@ import org.grating.recolldroid.ui.simpleVerticalScrollbar
 
 @Composable
 fun SnippetsScreen(
-    viewModel: RecollDroidViewModel,
-    modifier: Modifier = Modifier
+    viewModel: RecollDroidViewModel
 ) {
     val uiState = viewModel.uiState.collectAsState().value
     val scrollState = rememberScrollState()
@@ -65,7 +64,7 @@ fun SnippetsScreen(
                              modifier = Modifier
                                  .padding(4.dp)
                                  .weight(1f))
-                        Text(text = snippet.snippet.doHighlight(),
+                        Text(text = snippet.snippet.cleanup().doHighlight(),
                              modifier = Modifier
                                  .padding(4.dp)
                                  .weight(5f))

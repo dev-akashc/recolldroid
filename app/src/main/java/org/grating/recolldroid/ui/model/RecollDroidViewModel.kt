@@ -21,6 +21,7 @@ import android.content.Context
 import android.net.Uri
 import android.os.Environment
 import android.util.Base64
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
@@ -40,6 +41,7 @@ import org.grating.recolldroid.data.ErrorLatch
 import org.grating.recolldroid.data.RecollSearchResult
 import org.grating.recolldroid.data.ResultsRepository
 import org.grating.recolldroid.network.BasicAuthOverHttpException
+import org.grating.recolldroid.ui.DEFAULT_SEARCH_HIST_SZ
 import org.grating.recolldroid.ui.data.DownloadAccount
 import org.grating.recolldroid.ui.data.RecollDroidSettings
 import org.grating.recolldroid.ui.data.SettingsRepository
@@ -66,10 +68,11 @@ class RecollDroidViewModel(
         }
     }
 
-    fun updatePendingSettings(settings: RecollDroidSettings) {
+    fun updatePendingSettings(settings: RecollDroidSettings): RecollDroidViewModel {
         _uiState.update { state ->
             state.copy(pendingSettings = settings)
         }
+        return this
     }
 
     fun commitPendingSettings() {
@@ -85,7 +88,7 @@ class RecollDroidViewModel(
     }
 
 
-    fun updateCurrentQuery(query: String) {
+    fun updateCurrentQuery(query: TextFieldValue) {
         _uiState.update { currentState ->
             currentState.copy(
                 currentQuery = query
@@ -98,10 +101,12 @@ class RecollDroidViewModel(
         _uiState.update { state ->
             state.copy(
                 queryResponse = QueryResponse.Success(
-                    result = resultsRepository.executeQuery(_uiState.value.currentQuery)
+                    result = resultsRepository.executeQuery(_uiState.value.currentQuery.text)
                         .cachedIn(viewModelScope)))
         }
+        rememberSearch()
     }
+
 
     fun setCurrentResult(result: RecollSearchResult) {
         _uiState.update { currentState ->
@@ -188,7 +193,8 @@ class RecollDroidViewModel(
                 else {
                     // Now try to download.
                     val lSet = uiState.value.liveSettings
-                    val acc = lSet.downloadAccountList.find { docExtract.url.startsWith(it.baseUrl) }
+                    val acc =
+                        lSet.downloadAccountList.find { docExtract.url.startsWith(it.baseUrl) }
                     logInfo("Using account: ${acc?.toStringSafe()}")
 
                     downloadResult(fileName = result.filename,
@@ -221,6 +227,16 @@ class RecollDroidViewModel(
                        mimeType = result.mType.rawType,
                        context = ctx,
                        errorLatch = errorLatch)
+    }
+
+    private fun rememberSearch() {
+        val psb = _uiState.value.pendingSettings.toBuilder()
+        val pastSearches = psb.pastSearchList.toMutableSet(
+            psb.searchHistorySize.orDefault(DEFAULT_SEARCH_HIST_SZ) - 1)
+        pastSearches.add(_uiState.value.currentQuery.text)
+        psb.clearPastSearch().addAllPastSearch(pastSearches)
+        updatePendingSettings(psb.build())
+        commitPendingSettings()
     }
 
     companion object {
@@ -272,4 +288,16 @@ fun DownloadAccount.toStringSafe(): String {
         password: "<not shown>"
         username: "$username"
     """.trimIndent()
+}
+
+
+fun Int.orDefault(def: Int): Int {
+    return if (this <= 0) def else this
+}
+
+fun <E> List<E>.toMutableSet(maxSz: Int): MutableSet<E> {
+    return (if (maxSz < size)
+        subList(0, maxSz)
+    else
+        this).toMutableSet()
 }

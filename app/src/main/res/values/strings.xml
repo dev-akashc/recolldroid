@@ -20,4 +20,5 @@
     <string name="settings_screen_title">Settings</string>
     <string name="confirmation_dialog">Confirmation Dialog</string>
     <string name="show_raw_information">Show Raw Information</string>
+    <string name="delete_action">Delete</string>
 </resources>

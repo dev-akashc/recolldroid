@@ -169,7 +169,7 @@ fun String.cleanup(): String {
         .replace("&gt;", ">")
 }
 
-private val PLUS_MIME_MATCH = "mime:\\S+".toRegex()
+private val PLUS_MIME_MATCH = "[^-]mime:\\S+".toRegex()
 private val MINUS_MIME_MATCH = "-mime:\\S+".toRegex()
 private val WHITESPACE = "\\s+".toRegex()
 fun String.removeMinusMimes(): String {

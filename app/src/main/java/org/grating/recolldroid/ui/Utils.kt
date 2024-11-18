@@ -39,17 +39,23 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import org.grating.recolldroid.R
+import java.text.SimpleDateFormat
 import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalDateTime.ofInstant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.Date
+import java.util.Locale
+import kotlin.math.min
 
 private const val KB: Long = 1024
 private const val MB: Long = KB * KB
 private const val GB: Long = MB * KB
 private const val TB: Long = GB * KB
 
-const val DEFAULT_SEARCH_HIST_SZ = 10
+const val SEARCH_HIST_SZ = 100
+const val SEARCH_HIST_DROPDOWN_SZ = 10
 
 fun Long.readableFileSize(): String {
     return when {
@@ -157,8 +163,8 @@ fun Color.highlight(c: Color): Color {
 
 private val LOCAL_DAY_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 fun Long.secondsToLocalDateTimeString(): String {
-    return ofInstant(Instant.ofEpochMilli(this*1000),
-              ZoneId.systemDefault()).format(LOCAL_DAY_FORMATTER)
+    return ofInstant(Instant.ofEpochMilli(this * 1000),
+                     ZoneId.systemDefault()).format(LOCAL_DAY_FORMATTER)
 }
 
 fun String.cleanup(): String {
@@ -184,8 +190,40 @@ fun String.removePlusMimes(): String {
         .trim()
 }
 
-
 fun <E> MutableList<E>.prepend(e: E): MutableList<E> {
     this.add(0, e)
     return this
+}
+
+const val DATE_PATTERN = "yyyy-MM-dd"
+val DATE_RANGE_ALL = Pair(LocalDate.of(0, 1, 1), LocalDate.now())
+val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern(DATE_PATTERN)
+val DATE_RANGE_MATCHER = """\bdate:(\d\d\d\d-\d\d-\d\d/\d\d\d\d-\d\d-\d\d)\b""".toRegex()
+val DATE_RANGE_MATCHER2 = (".*"+DATE_RANGE_MATCHER.toPattern()+".*").toRegex()
+
+fun getDateRange(queryStr: String): Pair<LocalDate, LocalDate>? {
+    if (queryStr.matches(DATE_RANGE_MATCHER2)) {
+        val dateRangeStr = queryStr.replace(DATE_RANGE_MATCHER2, "$1")
+        return Pair(LocalDate.parse(dateRangeStr.substring(0, 10), DATE_FORMATTER),
+                    LocalDate.parse(dateRangeStr.substring(11, 21), DATE_FORMATTER))
+    } else
+        return null
+}
+
+fun LocalDate.toEpochMillis(): Long {
+    // Assume time is 00:00 in system default timezone.
+    return atTime(0, 0).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+}
+
+fun Long.convertMillisToDate(): String {
+    val formatter = SimpleDateFormat(DATE_PATTERN, Locale.getDefault())
+    return formatter.format(Date(this))
+}
+
+/**
+ * Return a sublist containing the first 'n' items from the original list.  If the original list is
+ * smaller than 'n', then return the list itself.
+ */
+fun <T> List<T>.firstN(n: Int): List<T> {
+    return subList(0, min(n, size))
 }

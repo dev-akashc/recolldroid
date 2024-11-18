@@ -50,6 +50,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
@@ -70,9 +71,11 @@ import org.grating.recolldroid.ui.screens.PreviewScreen
 import org.grating.recolldroid.ui.screens.QueryScreen
 import org.grating.recolldroid.ui.screens.RawDetailsScreen
 import org.grating.recolldroid.ui.screens.ResultsScreen
+import org.grating.recolldroid.ui.screens.SearchHistoryScreen
 import org.grating.recolldroid.ui.screens.SnippetsScreen
 import org.grating.recolldroid.ui.screens.dialogs.ConfirmationDialog
-import org.grating.recolldroid.ui.screens.dialogs.FilterSearchDialog
+import org.grating.recolldroid.ui.screens.dialogs.DateRangeFilterSearchDialog
+import org.grating.recolldroid.ui.screens.dialogs.IncludeExcludeFilterSearchDialog
 import org.grating.recolldroid.ui.screens.settings.SettingsScreen
 import java.io.File
 import java.net.URI
@@ -117,7 +120,11 @@ fun RecollDroidUi(
                             onQueryExecuteRequest = {
                                 viewModel.executeCurrentQuery()
                                 navController.navigate(RecollDroidScreen.Results.name)
-                            })
+                            },
+                            onGotoSearchHistory = {
+                                navController.navigate(RecollDroidScreen.SearchHistory.name)
+                            }
+                )
             }
             composable(route = RecollDroidScreen.Results.name) {
                 ResultsScreen(
@@ -157,6 +164,13 @@ fun RecollDroidUi(
                     onMimeTypeClick = { result ->
                         viewModel.setCurrentResult(result)
                         navController.navigate(RecollDroidScreen.FilterMime.name)
+                    },
+                    onDateClick = { result ->
+                        viewModel.setCurrentResult(result)
+                        navController.navigate(RecollDroidScreen.FilterDateRange.name)
+                    },
+                    onGotoSearchHistory = {
+                        navController.navigate(RecollDroidScreen.SearchHistory.name)
                     }
                 )
             }
@@ -184,32 +198,54 @@ fun RecollDroidUi(
                                    })
             }
             dialog(route = RecollDroidScreen.FilterMime.name) {
-                FilterSearchDialog(viewModel = viewModel,
-                                   message = buildAnnotatedString {
-                                       append("Filter current search for mime-type: ")
-                                       withStyle(style = SpanStyle(color = Color.Red)) {
-                                           append(uiState.currentResult!!.mType.rawType)
-                                       }
-                                   },
-                                   focusMessage = "Include This Type",
-                                   onIncludeRequest = {
-                                       viewModel.updateCurrentQuery(
-                                            "${uiState.currentQuery.text.removeMinusMimes()} " +
-                                                   "mime:${uiState.currentResult!!.mType.rawType}"
-                                       )
-                                       navController.navigateUp()
-                                   },
-                                   filterMessage = "Exclude This Type",
-                                   onExcludeRequest = {
-                                       viewModel.updateCurrentQuery(
-                                           "${uiState.currentQuery.text.removePlusMimes()} " +
-                                                   "-mime:${uiState.currentResult!!.mType.rawType}"
-                                       )
-                                       navController.navigateUp()
-                                   },
-                                   onDismissRequest = {
-                                       navController.navigateUp()
-                                   })
+                IncludeExcludeFilterSearchDialog(viewModel = viewModel,
+                                                 message = buildAnnotatedString {
+                                                     append("Filter current search for mime-type: ")
+                                                     withStyle(style = SpanStyle(color = Color.Red)) {
+                                                         append(uiState.currentResult!!.mType.rawType)
+                                                     }
+                                                 },
+                                                 focusMessage = "Include This Type",
+                                                 onIncludeRequest = {
+                                                     viewModel.updateCurrentQuery(
+                                                         "${uiState.currentQuery.text.removeMinusMimes()} " +
+                                                                 "mime:${uiState.currentResult!!.mType.rawType}"
+                                                     )
+                                                     navController.navigateUp()
+                                                 },
+                                                 filterMessage = "Exclude This Type",
+                                                 onExcludeRequest = {
+                                                     viewModel.updateCurrentQuery(
+                                                         "${uiState.currentQuery.text.removePlusMimes()} " +
+                                                                 "-mime:${uiState.currentResult!!.mType.rawType}"
+                                                     )
+                                                     navController.navigateUp()
+                                                 },
+                                                 onDismissRequest = {
+                                                     navController.navigateUp()
+                                                 })
+            }
+            dialog(route = RecollDroidScreen.FilterDateRange.name) {
+                // Parse date range from current query string, or choose defaults.
+                val dateRange = getDateRange(uiState.currentQuery.text) ?: DATE_RANGE_ALL
+                DateRangeFilterSearchDialog(viewModel = viewModel,
+                                            message = AnnotatedString("Filter by date range"),
+                                            range = dateRange,
+                                            onSetDateRangeInclusive = {
+                                                viewModel.updateFilterDateRange(it)
+                                                navController.navigateUp()
+                                            },
+                                            onDismissRequest = {
+                                                navController.navigateUp()
+                                            }
+                )
+            }
+            composable(route = RecollDroidScreen.SearchHistory.name) {
+                SearchHistoryScreen(viewModel,
+                                    onHistoricalSearchClick = {
+                                        viewModel.updateCurrentQuery(it)
+                                        navController.navigateUp()
+                                    })
             }
         }
     }
@@ -295,7 +331,9 @@ enum class RecollDroidScreen(@StringRes val title: Int) {
     Snippets(title = R.string.snippets_list_screen_title),
     Settings(title = R.string.settings_screen_title),
     Confirmation(title = R.string.confirmation_dialog),
-    FilterMime(title = R.string.filter_mimetype_dialog)
+    FilterMime(title = R.string.filter_mimetype_dialog),
+    FilterDateRange(title = R.string.filter_date_range),
+    SearchHistory(title = R.string.search_history_screen_title)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

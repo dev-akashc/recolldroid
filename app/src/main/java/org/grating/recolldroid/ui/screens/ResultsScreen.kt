@@ -82,12 +82,15 @@ fun ResultsScreen(
     onOpenDocument: (RecollSearchResult) -> Unit,
     onSnippetsShow: (RecollSearchResult) -> Unit,
     onRawDataShow: (RecollSearchResult) -> Unit,
-    onMimeTypeClick: (RecollSearchResult) -> Unit
+    onMimeTypeClick: (RecollSearchResult) -> Unit,
+    onDateClick: (RecollSearchResult) -> Unit,
+    onGotoSearchHistory: () -> Unit
 ) {
     Column {
         QueryBar(viewModel = viewModel,
                  onQueryChanged = onQueryChanged,
-                 onQueryExecuteRequest = onQueryExecuteRequest)
+                 onQueryExecuteRequest = onQueryExecuteRequest,
+                 onGotoSearchHistory = onGotoSearchHistory)
 
         val uiState = viewModel.uiState.collectAsState().value
         when (uiState.queryResponse) {
@@ -98,6 +101,7 @@ fun ResultsScreen(
                 onSnippetsShow = onSnippetsShow,
                 onResultInfoShow = onRawDataShow,
                 onMimeTypeClick = onMimeTypeClick,
+                onDateClick = onDateClick,
                 modifier = modifier,
             )
 
@@ -116,6 +120,7 @@ fun PopulatedResults(
     onSnippetsShow: (RecollSearchResult) -> Unit,
     onResultInfoShow: (RecollSearchResult) -> Unit,
     onMimeTypeClick: (RecollSearchResult) -> Unit,
+    onDateClick: (RecollSearchResult) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = Modifier.fillMaxSize(),
@@ -146,6 +151,7 @@ fun PopulatedResults(
                            onSnippetsShow = onSnippetsShow,
                            onResultInfoShow = onResultInfoShow,
                            onMimeTypeClick = onMimeTypeClick,
+                           onDateClick = onDateClick,
                            modifier = modifier)
             }
 
@@ -165,6 +171,7 @@ fun ResultCard(
     onSnippetsShow: (RecollSearchResult) -> Unit,
     onResultInfoShow: (RecollSearchResult) -> Unit,
     onMimeTypeClick: (RecollSearchResult) -> Unit,
+    onDateClick: (RecollSearchResult) -> Unit,
     modifier: Modifier = Modifier
 ) {
     ElevatedCard(
@@ -213,12 +220,14 @@ fun ResultCard(
                     Text(text = result.mType.toString(),
                          style = MaterialTheme.typography.titleSmall)
                     Spacer(modifier = Modifier.padding(4.dp))
-                    Text(text =
-                         if (result.dmTime > 0)
-                             result.dmTime.secondsToLocalDateTimeString()
-                         else
-                             result.fmTime.secondsToLocalDateTimeString(),
-                         style = MaterialTheme.typography.titleSmall)
+                    OutlinedButton(onClick = { onDateClick(result) }) {
+                        Text(text =
+                             if (result.dmTime > 0)
+                                 result.dmTime.secondsToLocalDateTimeString()
+                             else
+                                 result.fmTime.secondsToLocalDateTimeString(),
+                             style = MaterialTheme.typography.titleSmall)
+                    }
                 }
             }
         }
@@ -283,6 +292,7 @@ fun ResultCardPreview() {
             onSnippetsShow = {},
             onResultInfoShow = {},
             onMimeTypeClick = {},
+            onDateClick = {},
             modifier = Modifier
         )
     }
@@ -306,7 +316,9 @@ fun ResultsScreenPreview() {
             onOpenDocument = {},
             onSnippetsShow = {},
             onMimeTypeClick = {},
-            onRawDataShow = {}
+            onRawDataShow = {},
+            onDateClick = {},
+            onGotoSearchHistory = {}
         )
     }
 }

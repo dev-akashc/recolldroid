@@ -42,13 +42,16 @@ import org.grating.recolldroid.data.ErrorLatch
 import org.grating.recolldroid.data.RecollSearchResult
 import org.grating.recolldroid.data.ResultsRepository
 import org.grating.recolldroid.network.BasicAuthOverHttpException
-import org.grating.recolldroid.ui.DEFAULT_SEARCH_HIST_SZ
+import org.grating.recolldroid.ui.DATE_FORMATTER
+import org.grating.recolldroid.ui.DATE_RANGE_MATCHER
+import org.grating.recolldroid.ui.SEARCH_HIST_SZ
 import org.grating.recolldroid.ui.data.DownloadAccount
 import org.grating.recolldroid.ui.data.RecollDroidSettings
 import org.grating.recolldroid.ui.data.SettingsRepository
 import org.grating.recolldroid.ui.logError
 import org.grating.recolldroid.ui.logInfo
 import org.grating.recolldroid.ui.prepend
+import java.time.LocalDate
 
 class RecollDroidViewModel(
     val errorLatch: ErrorLatch,
@@ -109,6 +112,14 @@ class RecollDroidViewModel(
         }
     }
 
+    fun updateFilterDateRange(dateRange: Pair<LocalDate, LocalDate>) {
+        val newDateRangeExpr = "date:" +
+                DATE_FORMATTER.format(dateRange.first) + "/" +
+                DATE_FORMATTER.format(dateRange.second)
+        updateCurrentQuery(
+            _uiState.value.currentQuery.text.replace(DATE_RANGE_MATCHER, newDateRangeExpr))
+    }
+
     fun executeCurrentQuery() {
         _uiState.update { state -> state.copy(queryResponse = QueryResponse.Pending()) }
         _uiState.update { state ->
@@ -119,7 +130,6 @@ class RecollDroidViewModel(
         }
         rememberSearch()
     }
-
 
     fun setCurrentResult(result: RecollSearchResult) {
         _uiState.update { currentState ->
@@ -247,7 +257,7 @@ class RecollDroidViewModel(
         val pastSearches = psb.pastSearchList
             .toMutableList()
             .prepend(_uiState.value.currentQuery.text)
-            .toMutableSet(psb.searchHistorySize.orDefault(DEFAULT_SEARCH_HIST_SZ) - 1)
+            .toMutableSet(psb.searchHistorySize.orDefault(SEARCH_HIST_SZ) - 1)
         psb.clearPastSearch().addAllPastSearch(pastSearches)
         updatePendingSettings(psb.build())
         commitPendingSettings()

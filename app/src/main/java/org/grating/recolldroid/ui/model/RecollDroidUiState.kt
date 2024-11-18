@@ -25,6 +25,7 @@ import org.grating.recolldroid.data.RecollSearchResult
 import org.grating.recolldroid.data.RecollSnippet
 import org.grating.recolldroid.data.ResultPreview
 import org.grating.recolldroid.ui.data.RecollDroidSettings
+import java.time.LocalDate
 
 
 sealed interface QueryResponse {
@@ -68,6 +69,8 @@ data class RecollDroidUiState(
     val focusSearchActionMessage: String = "",
     val filterSearchAction: () -> Unit = {},
     val filterSearchActionMessage: String = "",
+
+    val filterDateRange: Pair<LocalDate,LocalDate>? = null
 )
 
 class CurrentResultNotSet : Exception("A current search result has not been set.")

@@ -55,7 +55,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.grating.recolldroid.R
+import org.grating.recolldroid.ui.RecollDroidScreen
+import org.grating.recolldroid.ui.SEARCH_HIST_DROPDOWN_SZ
 import org.grating.recolldroid.ui.data.removePastSearchAt
+import org.grating.recolldroid.ui.firstN
 import org.grating.recolldroid.ui.model.RecollDroidViewModel
 import org.grating.recolldroid.ui.theme.RecollDroidTheme
 
@@ -63,9 +66,10 @@ import org.grating.recolldroid.ui.theme.RecollDroidTheme
 fun QueryScreen(
     viewModel: RecollDroidViewModel = viewModel(),
     onQueryChanged: (queryField: TextFieldValue) -> Unit,
-    onQueryExecuteRequest: () -> Unit
+    onQueryExecuteRequest: () -> Unit,
+    onGotoSearchHistory: () -> Unit
 ) {
-    QueryBar(viewModel, onQueryChanged, onQueryExecuteRequest)
+    QueryBar(viewModel, onQueryChanged, onQueryExecuteRequest, onGotoSearchHistory)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -73,7 +77,8 @@ fun QueryScreen(
 fun QueryBar(
     viewModel: RecollDroidViewModel = viewModel(),
     onQueryChanged: (query: TextFieldValue) -> Unit,
-    onQueryExecuteRequest: () -> Unit
+    onQueryExecuteRequest: () -> Unit,
+    onGotoSearchHistory: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -138,30 +143,38 @@ fun QueryBar(
                                 .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 12.dp)
                                 .focusProperties { canFocus = false }
         ) {
-            uiState.liveSettings.pastSearchList.forEachIndexed { idx, qStr ->
-                DropdownMenuItem(
-                    text = { Text(text = qStr) },
-                    onClick = {
-                        onQueryChanged(TextFieldValue(
-                            text = qStr,
-                            selection = TextRange(qStr.length)))
-                        expanded = false
-                    },
-                    trailingIcon = {
-                        OutlinedIconButton(
-                            onClick = {
-                                viewModel.updatePendingSettings(
-                                    uiState.pendingSettings.toBuilder()
-                                        .removePastSearchAt(idx).build()
-                                ).commitPendingSettings()
+            uiState.liveSettings.pastSearchList.firstN(SEARCH_HIST_DROPDOWN_SZ)
+                .forEachIndexed { idx, qStr ->
+                    DropdownMenuItem(
+                        text = { Text(text = qStr) },
+                        onClick = {
+                            onQueryChanged(TextFieldValue(
+                                text = qStr,
+                                selection = TextRange(qStr.length)))
+                            expanded = false
+                        },
+                        trailingIcon = {
+                            OutlinedIconButton(
+                                onClick = {
+                                    viewModel.updatePendingSettings(
+                                        uiState.pendingSettings.toBuilder()
+                                            .removePastSearchAt(idx).build()
+                                    ).commitPendingSettings()
+                                }
+                            ) {
+                                Icon(imageVector = Icons.Outlined.Delete,
+                                     contentDescription = stringResource(R.string.delete_action))
                             }
-                        ) {
-                            Icon(imageVector = Icons.Outlined.Delete,
-                                 contentDescription = stringResource(R.string.delete_action))
-                        }
-                    },
-                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding)
-            }
+                        },
+                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding)
+                }
+            DropdownMenuItem(
+                text = { Text(text = "Show Full History") },
+                onClick = {
+                    expanded = false
+                    onGotoSearchHistory()
+                },
+                contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding)
         }
     }
 }
@@ -171,6 +184,7 @@ fun QueryBar(
 fun QueryScreenPreview() {
     RecollDroidTheme {
         QueryScreen(onQueryChanged = {},
-                    onQueryExecuteRequest = {})
+                    onQueryExecuteRequest = {},
+                    onGotoSearchHistory = {})
     }
 }

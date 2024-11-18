@@ -22,4 +22,8 @@
     <string name="show_raw_information">Show Raw Information</string>
     <string name="delete_action">Delete</string>
     <string name="filter_mimetype_dialog">Filter MimeType</string>
+    <string name="filter_date_range">Filter Date Range</string>
+    <string name="set_date_range_filter_action">Set Filter</string>
+    <string name="cancel_action">Cancel</string>
+    <string name="search_history_screen_title">Search History</string>
 </resources>

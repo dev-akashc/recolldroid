@@ -46,7 +46,6 @@ import org.grating.recolldroid.ui.SEARCH_HIST_SZ
 import org.grating.recolldroid.ui.data.DownloadAccount
 import org.grating.recolldroid.ui.data.RecollDroidSettings
 import org.grating.recolldroid.ui.data.SettingsRepository
-import org.grating.recolldroid.ui.getMimeTypeFromQueryFragment
 import org.grating.recolldroid.ui.isDateRangeFilter
 import org.grating.recolldroid.ui.isMimeTypeFilter
 import org.grating.recolldroid.ui.logError
@@ -99,7 +98,8 @@ class RecollDroidViewModel(
     fun updateCurrentQuery(query: TextFieldValue) {
         _uiState.update { currentState ->
             currentState.copy(
-                currentQuery = query
+                currentQuery = query,
+                queryFragment = QueryFragment.EMPTY
             )
         }
     }
@@ -110,7 +110,8 @@ class RecollDroidViewModel(
                 currentQuery = TextFieldValue(
                     text = query,
                     selection = TextRange(query.length) // Move cursor to end.
-                )
+                ),
+                queryFragment = QueryFragment.EMPTY
             )
         }
     }
@@ -125,6 +126,11 @@ class RecollDroidViewModel(
         _uiState.update { state ->
             state.copy(queryFragment = QueryFragment.EMPTY)
         }
+    }
+
+    fun stripCurrentFragmentFromQuery() {
+        updateCurrentQuery(
+            _uiState.value.currentQuery.text.replace(_uiState.value.queryFragment, ""))
     }
 
     fun updateFilterDateRange(dateRange: Pair<LocalDate, LocalDate>) {

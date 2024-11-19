@@ -267,28 +267,20 @@ fun TextFieldValue.getQueryFragment(): QueryFragment {
     return text.getQueryFragment(selection.start)
 }
 
-fun QueryFragment.getMimeTypeFromQueryFragment(): String {
-    return when {
-        word.startsWith("mime:") -> word.substring(4)
-        word.startsWith("-mime:") -> word.substring(5)
-        else -> ""
-    }
-}
-
-fun QueryFragment.getDateRangeFromQueryFragment(): String {
-    return when {
-        word.startsWith("date:") -> word.substring(4)
-        word.startsWith("-mime:") -> word.substring(5)
-        else -> ""
-    }
-}
-
 fun QueryFragment.isDateRangeFilter(): Boolean {
     return word.startsWith("date:")
 }
 
 fun QueryFragment.isMimeTypeFilter(): Boolean {
     return word.startsWith("mime:") || word.startsWith("-mime:")
+}
+
+fun QueryFragment.getMimeType(): String {
+    return when {
+        word.startsWith("mime:") -> word.substring(5)
+        word.startsWith("-mime:") -> word.substring(6)
+        else -> ""
+    }
 }
 
 fun String.replace(qf: QueryFragment, sub: String) =

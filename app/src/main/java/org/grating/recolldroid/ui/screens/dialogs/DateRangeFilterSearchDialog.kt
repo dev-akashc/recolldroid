@@ -62,6 +62,7 @@ fun DateRangeFilterSearchDialog(
     message: AnnotatedString,
     range: Pair<LocalDate, LocalDate>,
     onSetDateRangeInclusive: (Pair<LocalDate, LocalDate>) -> Unit,
+    onDeleteRequest: (() -> Unit)?,
     onDismissRequest: () -> Unit
 ) {
     val uiState = viewModel.uiState.collectAsState().value
@@ -111,6 +112,18 @@ fun DateRangeFilterSearchDialog(
                 ) {
                     Text(stringResource(R.string.set_date_range_filter_action))
                 }
+
+                if (onDeleteRequest != null) {
+                    TextButton(
+                        onClick = {
+                            onDeleteRequest()
+                        },
+                        modifier = Modifier
+                    ) {
+                        Text(stringResource(R.string.delete_action))
+                    }
+                }
+
                 TextButton(
                     onClick = {
                         onDismissRequest()

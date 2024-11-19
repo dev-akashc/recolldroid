@@ -34,8 +34,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
+import org.grating.recolldroid.R
 import org.grating.recolldroid.data.DocType
 import org.grating.recolldroid.ui.model.RecollDroidViewModel
 
@@ -52,6 +54,7 @@ fun IncludeExcludeFilterSearchDialog(
     includeMessage: String,
     onExcludeRequest: () -> Unit,
     excludeMessage: String,
+    onDeleteRequest: (() -> Unit)?,
     onDismissRequest: () -> Unit
 ) {
     val uiState = viewModel.uiState.collectAsState().value
@@ -80,7 +83,6 @@ fun IncludeExcludeFilterSearchDialog(
                 TextButton(
                     onClick = {
                         onIncludeRequest()
-                        viewModel.clearConfirmableAction()
                     },
                     modifier = Modifier
                 ) {
@@ -89,11 +91,22 @@ fun IncludeExcludeFilterSearchDialog(
                 TextButton(
                     onClick = {
                         onExcludeRequest()
-                        viewModel.clearConfirmableAction()
                     },
                     modifier = Modifier
                 ) {
                     Text(excludeMessage)
+                }
+            }
+            Row {
+                if (onDeleteRequest != null) {
+                    TextButton(
+                        onClick = {
+                            onDeleteRequest()
+                        },
+                        modifier = Modifier
+                    ) {
+                        Text(stringResource(R.string.delete_action))
+                    }
                 }
                 TextButton(
                     onClick = {
@@ -101,7 +114,7 @@ fun IncludeExcludeFilterSearchDialog(
                     },
                     modifier = Modifier
                 ) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel_action))
                 }
             }
         }

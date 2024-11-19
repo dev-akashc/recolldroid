@@ -222,7 +222,9 @@ fun ResultCard(
                          style = MaterialTheme.typography.titleSmall)
                     Spacer(modifier = Modifier.padding(4.dp))
                     Text(text = result.mType.docType.shortName(),
-                         style = MaterialTheme.typography.titleSmall)
+                         style = MaterialTheme.typography.titleSmall,
+                         color = MaterialTheme.colorScheme.primary,
+                         modifier = Modifier.clickable { onMimeTypeClick(result) })
                     Spacer(modifier = Modifier.padding(4.dp))
                     Text(text = result.date.toDateString(),
                          style = MaterialTheme.typography.titleSmall,
@@ -246,6 +248,7 @@ fun ResultCard(
                 modifier = Modifier.padding(end = 8.dp),
             ) {
                 Text(text = stringResource(R.string.preview_btn),
+                     color = MaterialTheme.colorScheme.primary,
                      maxLines = 1)
             }
             OutlinedButton(
@@ -253,6 +256,7 @@ fun ResultCard(
                 modifier = Modifier.padding(end = 8.dp),
             ) {
                 Text(text = stringResource(R.string.open_btn),
+                     color = MaterialTheme.colorScheme.primary,
                      maxLines = 1)
             }
             OutlinedButton(
@@ -260,6 +264,7 @@ fun ResultCard(
                 modifier = Modifier.padding(end = 8.dp),
             ) {
                 Text(text = stringResource(R.string.snippets_btn),
+                     color = MaterialTheme.colorScheme.primary,
                      maxLines = 1)
             }
         }

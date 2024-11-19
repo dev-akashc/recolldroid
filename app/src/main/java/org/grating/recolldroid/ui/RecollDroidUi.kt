@@ -81,7 +81,6 @@ import org.grating.recolldroid.ui.screens.settings.SettingsScreen
 import java.io.File
 import java.net.URI
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecollDroidUi(
@@ -205,19 +204,22 @@ fun RecollDroidUi(
                                    })
             }
             dialog(route = RecollDroidScreen.FilterMime.name) {
-                val rawType = when {
-                    uiState.queryFragment.word.startsWith("mime:") ->
-                        uiState.queryFragment.word.substring(5)
+                val qf = uiState.queryFragment
+                val (rawType, delFunc) = when {
+                    qf.isMimeTypeFilter() -> Pair(
+                        qf.getMimeType(),
+                        fun() {
+                            viewModel.stripCurrentFragmentFromQuery()
+                            navController.navigateUp()
+                        })
 
-                    uiState.queryFragment.word.startsWith("-mime:") ->
-                        uiState.queryFragment.word.substring(6)
-
-                    uiState.currentResult != null ->
-                        uiState.currentResult.mType.rawType
+                    uiState.currentResult != null -> Pair(
+                        uiState.currentResult.mType.rawType, null
+                    )
 
                     else -> { // Shouldn't really be here then :-S
                         navController.navigateUp()
-                        ""
+                        Pair("", null)
                     }
                 }
 
@@ -239,20 +241,28 @@ fun RecollDroidUi(
                                                      viewModel.updateMimeTypeFilter("-mime:$rawType")
                                                      navController.navigateUp()
                                                  },
+                                                 onDeleteRequest = delFunc,
                                                  onDismissRequest = {
                                                      viewModel.clearQueryFragment()
                                                      navController.navigateUp()
                                                  })
             }
             dialog(route = RecollDroidScreen.FilterDateRange.name) {
-                val dateRange = when {
-                    uiState.queryFragment.word.startsWith("date:") ->
-                        getDateRange(uiState.queryFragment.word) ?: DEFAULT_DATE_RANGE
+                val qf = uiState.queryFragment
+                val (dateRange, delFunc) = when {
+                    qf.isDateRangeFilter() -> Pair(
+                        getDateRange(uiState.queryFragment.word) ?: DEFAULT_DATE_RANGE,
+                        fun() {
+                            viewModel.stripCurrentFragmentFromQuery()
+                            navController.navigateUp()
+                        })
 
-                    uiState.currentResult != null ->
-                        Pair(uiState.currentResult.date, uiState.currentResult.date)
+                    uiState.currentResult != null -> Pair(
+                        Pair(uiState.currentResult.date, uiState.currentResult.date),
+                        null
+                    )
 
-                    else -> DEFAULT_DATE_RANGE
+                    else -> Pair(DEFAULT_DATE_RANGE, null)
                 }
 
                 DateRangeFilterSearchDialog(viewModel = viewModel,
@@ -262,6 +272,7 @@ fun RecollDroidUi(
                                                 viewModel.updateFilterDateRange(it)
                                                 navController.navigateUp()
                                             },
+                                            onDeleteRequest = delFunc,
                                             onDismissRequest = {
                                                 viewModel.clearQueryFragment()
                                                 navController.navigateUp()
@@ -283,7 +294,7 @@ private fun triggerQuerySupport(
     viewModel: RecollDroidViewModel,
     navController: NavHostController,
     queryFragment: QueryFragment
-):Boolean {
+): Boolean {
     return when {
         queryFragment.isDateRangeFilter() -> {
             viewModel.updateQueryFragment(queryFragment)

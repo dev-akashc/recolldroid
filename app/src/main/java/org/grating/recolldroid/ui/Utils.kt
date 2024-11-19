@@ -35,18 +35,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import org.grating.recolldroid.R
-import java.text.SimpleDateFormat
+import org.grating.recolldroid.ui.model.QueryFragment
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime.ofInstant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.Date
-import java.util.Locale
+import java.time.format.DateTimeParseException
 import kotlin.math.min
 
 private const val KB: Long = 1024
@@ -161,12 +161,6 @@ fun Color.highlight(c: Color): Color {
     return Color(this.red, this.green, this.blue, 0.8f).compositeOver(c)
 }
 
-private val LOCAL_DAY_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-fun Long.secondsToLocalDateTimeString(): String {
-    return ofInstant(Instant.ofEpochMilli(this * 1000),
-                     ZoneId.systemDefault()).format(LOCAL_DAY_FORMATTER)
-}
-
 fun String.cleanup(): String {
     return replace("<br>", "")
         .replace("&amp;", "&")
@@ -196,10 +190,16 @@ fun <E> MutableList<E>.prepend(e: E): MutableList<E> {
 }
 
 const val DATE_PATTERN = "yyyy-MM-dd"
-val DATE_RANGE_ALL = Pair(LocalDate.of(0, 1, 1), LocalDate.now())
 val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern(DATE_PATTERN)
 val DATE_RANGE_MATCHER = """\bdate:(\d\d\d\d-\d\d-\d\d/\d\d\d\d-\d\d-\d\d)\b""".toRegex()
-val DATE_RANGE_MATCHER2 = (".*"+DATE_RANGE_MATCHER.toPattern()+".*").toRegex()
+val DATE_RANGE_MATCHER2 = (".*" + DATE_RANGE_MATCHER.toPattern() + ".*").toRegex()
+fun Long.secondsToLocalDate(): LocalDate {
+    return ofInstant(Instant.ofEpochMilli(this * 1000), ZoneId.systemDefault())
+        .toLocalDate()
+}
+
+val EPOCH_DATE: LocalDate = LocalDate.of(1970, 1, 1)
+val DEFAULT_DATE_RANGE = Pair(EPOCH_DATE, LocalDate.now())
 
 fun getDateRange(queryStr: String): Pair<LocalDate, LocalDate>? {
     if (queryStr.matches(DATE_RANGE_MATCHER2)) {
@@ -215,9 +215,31 @@ fun LocalDate.toEpochMillis(): Long {
     return atTime(0, 0).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
 }
 
-fun Long.convertMillisToDate(): String {
-    val formatter = SimpleDateFormat(DATE_PATTERN, Locale.getDefault())
-    return formatter.format(Date(this))
+fun LocalDate.toDateString(): String {
+    return DATE_FORMATTER.format(this)
+}
+
+fun String.toLocalDate(): LocalDate {
+    return LocalDate.parse(this, DATE_FORMATTER)
+}
+
+fun String.testFormat(): String {
+    return when {
+        isBlank() -> "Not set"
+        else ->
+            try {
+                LocalDate.parse(this, DATE_FORMATTER)
+                return ""
+            } catch (e: DateTimeParseException) {
+                "Must be $DATE_PATTERN"
+            } catch (t: Throwable) {
+                t.toString()
+            }
+    }
+}
+
+fun Pair<LocalDate, LocalDate>.toRecollDateRangeString(): String {
+    return "date:${first.toDateString()}/${second.toDateString()}"
 }
 
 /**
@@ -227,3 +249,47 @@ fun Long.convertMillisToDate(): String {
 fun <T> List<T>.firstN(n: Int): List<T> {
     return subList(0, min(n, size))
 }
+
+/**
+ * Get the query fragment (contiguous non-whitespace chars) located at the specified position.
+ */
+fun String.getQueryFragment(pos: Int): QueryFragment {
+    if (isEmpty()) return QueryFragment.EMPTY
+    var start: Int = pos
+    while (start in indices && !this[start].isWhitespace()) --start
+    if (start == pos) return QueryFragment.EMPTY
+    var end: Int = pos
+    while (end in indices && !this[end].isWhitespace()) end++
+    return QueryFragment(substring(start + 1, end), start + 1)
+}
+
+fun TextFieldValue.getQueryFragment(): QueryFragment {
+    return text.getQueryFragment(selection.start)
+}
+
+fun QueryFragment.getMimeTypeFromQueryFragment(): String {
+    return when {
+        word.startsWith("mime:") -> word.substring(4)
+        word.startsWith("-mime:") -> word.substring(5)
+        else -> ""
+    }
+}
+
+fun QueryFragment.getDateRangeFromQueryFragment(): String {
+    return when {
+        word.startsWith("date:") -> word.substring(4)
+        word.startsWith("-mime:") -> word.substring(5)
+        else -> ""
+    }
+}
+
+fun QueryFragment.isDateRangeFilter(): Boolean {
+    return word.startsWith("date:")
+}
+
+fun QueryFragment.isMimeTypeFilter(): Boolean {
+    return word.startsWith("mime:") || word.startsWith("-mime:")
+}
+
+fun String.replace(qf: QueryFragment, sub: String) =
+    replaceRange(qf.pos, qf.pos + qf.word.length, sub)

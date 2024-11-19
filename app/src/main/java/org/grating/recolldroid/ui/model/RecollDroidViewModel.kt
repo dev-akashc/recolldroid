@@ -42,15 +42,18 @@ import org.grating.recolldroid.data.ErrorLatch
 import org.grating.recolldroid.data.RecollSearchResult
 import org.grating.recolldroid.data.ResultsRepository
 import org.grating.recolldroid.network.BasicAuthOverHttpException
-import org.grating.recolldroid.ui.DATE_FORMATTER
-import org.grating.recolldroid.ui.DATE_RANGE_MATCHER
 import org.grating.recolldroid.ui.SEARCH_HIST_SZ
 import org.grating.recolldroid.ui.data.DownloadAccount
 import org.grating.recolldroid.ui.data.RecollDroidSettings
 import org.grating.recolldroid.ui.data.SettingsRepository
+import org.grating.recolldroid.ui.getMimeTypeFromQueryFragment
+import org.grating.recolldroid.ui.isDateRangeFilter
+import org.grating.recolldroid.ui.isMimeTypeFilter
 import org.grating.recolldroid.ui.logError
 import org.grating.recolldroid.ui.logInfo
 import org.grating.recolldroid.ui.prepend
+import org.grating.recolldroid.ui.replace
+import org.grating.recolldroid.ui.toRecollDateRangeString
 import java.time.LocalDate
 
 class RecollDroidViewModel(
@@ -112,12 +115,39 @@ class RecollDroidViewModel(
         }
     }
 
+    fun updateQueryFragment(queryFragment: QueryFragment) {
+        _uiState.update { state ->
+            state.copy(queryFragment = queryFragment)
+        }
+    }
+
+    fun clearQueryFragment() {
+        _uiState.update { state ->
+            state.copy(queryFragment = QueryFragment.EMPTY)
+        }
+    }
+
     fun updateFilterDateRange(dateRange: Pair<LocalDate, LocalDate>) {
-        val newDateRangeExpr = "date:" +
-                DATE_FORMATTER.format(dateRange.first) + "/" +
-                DATE_FORMATTER.format(dateRange.second)
-        updateCurrentQuery(
-            _uiState.value.currentQuery.text.replace(DATE_RANGE_MATCHER, newDateRangeExpr))
+        val dateRangeString = dateRange.toRecollDateRangeString()
+        val q = _uiState.value.currentQuery
+        val qf = _uiState.value.queryFragment
+        if (qf.isDateRangeFilter()) {
+            updateCurrentQuery(q.text.replace(qf, dateRangeString))
+            clearQueryFragment()
+        } else {
+            updateCurrentQuery("${_uiState.value.currentQuery.text} $dateRangeString")
+        }
+    }
+
+    fun updateMimeTypeFilter(mimeTypeFilter: String) {
+        val q = _uiState.value.currentQuery
+        val qf = _uiState.value.queryFragment
+        if (qf.isMimeTypeFilter()) {
+            updateCurrentQuery(q.text.replace(qf, mimeTypeFilter))
+            clearQueryFragment()
+        } else {
+            updateCurrentQuery("${_uiState.value.currentQuery.text} $mimeTypeFilter")
+        }
     }
 
     fun executeCurrentQuery() {

@@ -16,7 +16,6 @@
  */
 package org.grating.recolldroid.ui.model
 
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
@@ -25,7 +24,6 @@ import org.grating.recolldroid.data.RecollSearchResult
 import org.grating.recolldroid.data.RecollSnippet
 import org.grating.recolldroid.data.ResultPreview
 import org.grating.recolldroid.ui.data.RecollDroidSettings
-import java.time.LocalDate
 
 
 sealed interface QueryResponse {
@@ -64,13 +62,13 @@ data class RecollDroidUiState(
     val confirmationMessage: String = "",
     val confirmableAction: () -> Unit = {},
 
-    val filterSearchMessage: AnnotatedString = AnnotatedString(""),
-    val focusSearchAction: () -> Unit = {},
-    val focusSearchActionMessage: String = "",
-    val filterSearchAction: () -> Unit = {},
-    val filterSearchActionMessage: String = "",
-
-    val filterDateRange: Pair<LocalDate,LocalDate>? = null
+    val queryFragment: QueryFragment = QueryFragment.EMPTY
 )
+
+data class QueryFragment(val word:String, val pos:Int) {
+    companion object {
+        val EMPTY = QueryFragment("", 0)
+    }
+}
 
 class CurrentResultNotSet : Exception("A current search result has not been set.")

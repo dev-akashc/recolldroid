@@ -19,6 +19,7 @@ package org.grating.recolldroid.ui.screens.dialogs
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -35,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
+import org.grating.recolldroid.data.DocType
 import org.grating.recolldroid.ui.model.RecollDroidViewModel
 
 /**
@@ -45,10 +47,11 @@ import org.grating.recolldroid.ui.model.RecollDroidViewModel
 fun IncludeExcludeFilterSearchDialog(
     viewModel: RecollDroidViewModel,
     message: AnnotatedString,
+    docType: DocType,
     onIncludeRequest: () -> Unit,
-    focusMessage: String,
+    includeMessage: String,
     onExcludeRequest: () -> Unit,
-    filterMessage: String,
+    excludeMessage: String,
     onDismissRequest: () -> Unit
 ) {
     val uiState = viewModel.uiState.collectAsState().value
@@ -64,13 +67,15 @@ fun IncludeExcludeFilterSearchDialog(
             modifier = Modifier.padding(16.dp)
         ) {
             Image(
-                painter = painterResource(uiState.currentResult!!.mType.docType.typeIcon),
+                painter = painterResource(docType.typeIcon),
                 contentDescription = "Filter by MimeType",
                 modifier = Modifier
                     .size(100.dp)
                     .padding(8.dp)
             )
+            Spacer(modifier = Modifier.size(20.dp))
             Text(text = message)
+            Spacer(modifier = Modifier.size(20.dp))
             Row {
                 TextButton(
                     onClick = {
@@ -79,7 +84,7 @@ fun IncludeExcludeFilterSearchDialog(
                     },
                     modifier = Modifier
                 ) {
-                    Text(focusMessage)
+                    Text(includeMessage)
                 }
                 TextButton(
                     onClick = {
@@ -88,7 +93,7 @@ fun IncludeExcludeFilterSearchDialog(
                     },
                     modifier = Modifier
                 ) {
-                    Text(filterMessage)
+                    Text(excludeMessage)
                 }
                 TextButton(
                     onClick = {

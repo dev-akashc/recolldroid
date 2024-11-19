@@ -25,7 +25,9 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import org.grating.recolldroid.ui.secondsToLocalDate
 import java.net.URL
+import java.time.LocalDate
 
 @Serializable
 data class ResultSet(
@@ -135,6 +137,9 @@ data class RecollSearchResult(
     @Transient
     var snippetsList: List<RecollSnippet> = NULL_SNIPPETS
 
+    val date: LocalDate
+        get() = (if (dmTime > 0) dmTime else fmTime).secondsToLocalDate()
+
     companion object {
         const val UNKNOWN_STR: String = "UNKNOWN"
         const val UNKNOWN_DBL: Double = -1.0
@@ -166,7 +171,7 @@ data class RecollDocumentExtract(
     val url: String,
     val msg: String
 ) {
-   companion object {
+    companion object {
         val NULL = RecollDocumentExtract("", "NULL")
     }
 }
@@ -190,7 +195,7 @@ object MTypeSerializer : KSerializer<MType> {
 
     override fun deserialize(decoder: Decoder): MType {
         val rawType = decoder.decodeString()
-        return MType(docType = DocType.byText(rawType), rawType)
+        return MType(docType = DocType.fromText(rawType), rawType)
     }
 
     override fun serialize(encoder: Encoder, value: MType) {

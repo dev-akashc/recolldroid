@@ -16,6 +16,8 @@
  */
 package org.grating.recolldroid.ui.screens
 
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -36,6 +38,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -55,10 +58,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.grating.recolldroid.R
-import org.grating.recolldroid.ui.RecollDroidScreen
 import org.grating.recolldroid.ui.SEARCH_HIST_DROPDOWN_SZ
 import org.grating.recolldroid.ui.data.removePastSearchAt
 import org.grating.recolldroid.ui.firstN
+import org.grating.recolldroid.ui.getQueryFragment
+import org.grating.recolldroid.ui.model.QueryFragment
 import org.grating.recolldroid.ui.model.RecollDroidViewModel
 import org.grating.recolldroid.ui.theme.RecollDroidTheme
 
@@ -67,9 +71,14 @@ fun QueryScreen(
     viewModel: RecollDroidViewModel = viewModel(),
     onQueryChanged: (queryField: TextFieldValue) -> Unit,
     onQueryExecuteRequest: () -> Unit,
-    onGotoSearchHistory: () -> Unit
+    onGotoSearchHistory: () -> Unit,
+    onQuerySupportRequested: (QueryFragment) -> Boolean,
 ) {
-    QueryBar(viewModel, onQueryChanged, onQueryExecuteRequest, onGotoSearchHistory)
+    QueryBar(viewModel,
+             onQueryChanged,
+             onQueryExecuteRequest,
+             onGotoSearchHistory,
+             onQuerySupportRequested)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -78,21 +87,33 @@ fun QueryBar(
     viewModel: RecollDroidViewModel = viewModel(),
     onQueryChanged: (query: TextFieldValue) -> Unit,
     onQueryExecuteRequest: () -> Unit,
-    onGotoSearchHistory: () -> Unit
+    onGotoSearchHistory: () -> Unit,
+    onQuerySupportRequested: (QueryFragment) -> Boolean
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val keyboardController = LocalSoftwareKeyboardController.current
-    var expanded by remember { mutableStateOf(false) }
-
-    ExposedDropdownMenuBox(expanded = expanded,
+    var dropdownExpanded by remember { mutableStateOf(false) }
+    val iSrc = remember { MutableInteractionSource() }
+        .also {
+            LaunchedEffect(it) {
+                it.interactions.collect { event ->
+                    if (event is PressInteraction.Release) {
+                        if (onQuerySupportRequested(uiState.currentQuery.getQueryFragment()))
+                            dropdownExpanded = false
+                    }
+                }
+            }
+        }
+    ExposedDropdownMenuBox(expanded = dropdownExpanded,
                            onExpandedChange = {
-                               expanded = it
+                               dropdownExpanded = it
                            }) {
         OutlinedTextField(
             value = uiState.currentQuery,
             onValueChange = {
                 onQueryChanged(it)
             },
+            interactionSource = iSrc,
             placeholder = { Text(stringResource(R.string.enter_recoll_query)) },
             leadingIcon = {
                 Icon(painter = painterResource(id = R.drawable.recoll),
@@ -108,11 +129,15 @@ fun QueryBar(
             modifier = Modifier
                 .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 12.dp)
                 .fillMaxWidth()
-                //                 .focusRequester(focusRequester)
-                .onFocusChanged {
-                    if (it.isFocused)
-                        expanded = true
-                }
+//                .onFocusChanged {
+//                    if (it.isFocused) {
+//                        // If a part of the query is touched that's supported by a dialog, open
+//                        // that dialog with the contents of the query portion.
+//                        // uiState.currentQuery.text.uiState.currentQuery.selection.start
+//                        // onQuerySupportRequested(uiState.currentQuery.getWord())
+//                        dropdownExpanded = true
+//                    }
+//                }
                 .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable, true),
             enabled = true,
             singleLine = false,
@@ -120,9 +145,10 @@ fun QueryBar(
                 OutlinedIconButton(
                     onClick = {
                         onQueryExecuteRequest()
-                        expanded = false
+                        dropdownExpanded = false
                         keyboardController?.hide()
-                    }
+                    },
+                    modifier = Modifier.padding(4.dp)
                 ) {
                     Icon(imageVector = Icons.Outlined.Search,
                          contentDescription = stringResource(R.string.search_action))
@@ -131,13 +157,13 @@ fun QueryBar(
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(onSearch = {
                 onQueryExecuteRequest()
-                expanded = false
+                dropdownExpanded = false
                 keyboardController?.hide()
             }),
         )
-        ExposedDropdownMenu(expanded = expanded,
+        ExposedDropdownMenu(expanded = dropdownExpanded,
                             onDismissRequest = {
-                                expanded = false
+                                dropdownExpanded = false
                             },
                             modifier = Modifier
                                 .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 12.dp)
@@ -151,7 +177,7 @@ fun QueryBar(
                             onQueryChanged(TextFieldValue(
                                 text = qStr,
                                 selection = TextRange(qStr.length)))
-                            expanded = false
+                            dropdownExpanded = false
                         },
                         trailingIcon = {
                             OutlinedIconButton(
@@ -171,7 +197,7 @@ fun QueryBar(
             DropdownMenuItem(
                 text = { Text(text = "Show Full History") },
                 onClick = {
-                    expanded = false
+                    dropdownExpanded = false
                     onGotoSearchHistory()
                 },
                 contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding)
@@ -185,6 +211,7 @@ fun QueryScreenPreview() {
     RecollDroidTheme {
         QueryScreen(onQueryChanged = {},
                     onQueryExecuteRequest = {},
-                    onGotoSearchHistory = {})
+                    onGotoSearchHistory = {},
+                    onQuerySupportRequested = { false })
     }
 }

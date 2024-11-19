@@ -300,7 +300,7 @@ enum class DocType(val text: String) {
     companion object {
         private val BY_TEXT = DocType.entries.associateBy({ it.text }, { it }) // <3
 
-        fun byText(txt: String): DocType {
+        fun fromText(txt: String): DocType {
             return BY_TEXT[txt] ?: when {
                 // Anything mapping out of the ordinary, put it here.
                 else -> UNKNOWN

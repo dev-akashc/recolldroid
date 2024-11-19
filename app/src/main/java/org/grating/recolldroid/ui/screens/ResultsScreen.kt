@@ -59,17 +59,19 @@ import org.grating.recolldroid.data.RecollSearchResult
 import org.grating.recolldroid.data.ResultSet
 import org.grating.recolldroid.data.fake.FakeResultsDataProvider
 import org.grating.recolldroid.data.fake.FakeResultsRepository
+import org.grating.recolldroid.data.shortName
 import org.grating.recolldroid.ui.addLoadState
 import org.grating.recolldroid.ui.cleanup
 import org.grating.recolldroid.ui.data.fake.FakeSettingsRepository
 import org.grating.recolldroid.ui.doHighlight
+import org.grating.recolldroid.ui.model.QueryFragment
 import org.grating.recolldroid.ui.model.QueryResponse
 import org.grating.recolldroid.ui.model.RecollDroidViewModel
 import org.grating.recolldroid.ui.or
 import org.grating.recolldroid.ui.readableFileSize
-import org.grating.recolldroid.ui.secondsToLocalDateTimeString
 import org.grating.recolldroid.ui.simpleVerticalScrollbar
 import org.grating.recolldroid.ui.theme.RecollDroidTheme
+import org.grating.recolldroid.ui.toDateString
 
 
 @Composable
@@ -84,13 +86,15 @@ fun ResultsScreen(
     onRawDataShow: (RecollSearchResult) -> Unit,
     onMimeTypeClick: (RecollSearchResult) -> Unit,
     onDateClick: (RecollSearchResult) -> Unit,
+    onQuerySupportRequested: (QueryFragment) -> Boolean,
     onGotoSearchHistory: () -> Unit
 ) {
     Column {
         QueryBar(viewModel = viewModel,
                  onQueryChanged = onQueryChanged,
                  onQueryExecuteRequest = onQueryExecuteRequest,
-                 onGotoSearchHistory = onGotoSearchHistory)
+                 onGotoSearchHistory = onGotoSearchHistory,
+                 onQuerySupportRequested = onQuerySupportRequested)
 
         val uiState = viewModel.uiState.collectAsState().value
         when (uiState.queryResponse) {
@@ -217,17 +221,14 @@ fun ResultCard(
                     Text(text = result.fBytes.readableFileSize(),
                          style = MaterialTheme.typography.titleSmall)
                     Spacer(modifier = Modifier.padding(4.dp))
-                    Text(text = result.mType.toString(),
+                    Text(text = result.mType.docType.shortName(),
                          style = MaterialTheme.typography.titleSmall)
                     Spacer(modifier = Modifier.padding(4.dp))
-                    OutlinedButton(onClick = { onDateClick(result) }) {
-                        Text(text =
-                             if (result.dmTime > 0)
-                                 result.dmTime.secondsToLocalDateTimeString()
-                             else
-                                 result.fmTime.secondsToLocalDateTimeString(),
-                             style = MaterialTheme.typography.titleSmall)
-                    }
+                    Text(text = result.date.toDateString(),
+                         style = MaterialTheme.typography.titleSmall,
+                         color = MaterialTheme.colorScheme.primary,
+                         modifier = Modifier.clickable { onDateClick(result) }
+                    )
                 }
             }
         }
@@ -318,7 +319,8 @@ fun ResultsScreenPreview() {
             onMimeTypeClick = {},
             onRawDataShow = {},
             onDateClick = {},
-            onGotoSearchHistory = {}
+            onGotoSearchHistory = {},
+            onQuerySupportRequested = {false}
         )
     }
 }

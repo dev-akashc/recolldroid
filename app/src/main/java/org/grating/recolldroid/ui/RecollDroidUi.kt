@@ -27,6 +27,8 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Help
+import androidx.compose.material.icons.filled.Help
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BasicAlertDialog
@@ -68,6 +70,7 @@ import org.grating.recolldroid.data.DocType
 import org.grating.recolldroid.data.DownloadedDocumentState
 import org.grating.recolldroid.ui.model.QueryFragment
 import org.grating.recolldroid.ui.model.RecollDroidViewModel
+import org.grating.recolldroid.ui.screens.CheatSheetScreen
 import org.grating.recolldroid.ui.screens.PreviewScreen
 import org.grating.recolldroid.ui.screens.QueryScreen
 import org.grating.recolldroid.ui.screens.RawDetailsScreen
@@ -104,6 +107,7 @@ fun RecollDroidUi(
                 canNavigateBack = navController.previousBackStackEntry != null,
                 navigateUp = { navController.navigateUp() },
                 navigateSettings = { navController.navigate(RecollDroidScreen.Settings.name) },
+                navigateCheatSheet = { navController.navigate(RecollDroidScreen.CheatSheet.name) },
                 scrollBehavior = scrollBehavior,
             )
         }
@@ -188,6 +192,9 @@ fun RecollDroidUi(
             }
             composable(route = RecollDroidScreen.Snippets.name) {
                 SnippetsScreen(viewModel = viewModel)
+            }
+            composable(route = RecollDroidScreen.CheatSheet.name) {
+                CheatSheetScreen(viewModel = viewModel)
             }
             composable(route = RecollDroidScreen.Settings.name) {
                 SettingsScreen(viewModel = viewModel)
@@ -396,7 +403,8 @@ enum class RecollDroidScreen(@StringRes val title: Int) {
     Confirmation(title = R.string.confirmation_dialog),
     FilterMime(title = R.string.filter_mimetype_dialog),
     FilterDateRange(title = R.string.filter_date_range),
-    SearchHistory(title = R.string.search_history_screen_title)
+    SearchHistory(title = R.string.search_history_screen_title),
+    CheatSheet(title = R.string.cheat_sheet_screen_title)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -405,9 +413,10 @@ fun RecollDroidTopAppBar(
     currentScreen: RecollDroidScreen,
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
+    navigateCheatSheet: () -> Unit,
     navigateSettings: () -> Unit,
-    scrollBehavior: TopAppBarScrollBehavior,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    scrollBehavior: TopAppBarScrollBehavior
 ) = CenterAlignedTopAppBar(
     scrollBehavior = scrollBehavior,
     title = {
@@ -438,6 +447,14 @@ fun RecollDroidTopAppBar(
 //                    )
 //                }
 //            }
+        if (currentScreen != RecollDroidScreen.CheatSheet) {
+            IconButton(onClick = { navigateCheatSheet() }) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Help,
+                    contentDescription = stringResource(R.string.cheatsheet_button)
+                )
+            }
+        }
         if (currentScreen != RecollDroidScreen.Settings) {
             IconButton(onClick = { navigateSettings() }) {
                 Icon(

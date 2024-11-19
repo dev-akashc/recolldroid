@@ -26,4 +26,6 @@
     <string name="set_date_range_filter_action">Set Filter</string>
     <string name="cancel_action">Cancel</string>
     <string name="search_history_screen_title">Search History</string>
+    <string name="cheat_sheet_screen_title">Query Cheat Sheet</string>
+    <string name="cheatsheet_button">Query CheatSheet</string>
 </resources>

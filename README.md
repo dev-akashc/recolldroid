@@ -17,10 +17,10 @@ To install the UI at the moment, you'll need to install AndroidStudio and then g
 
 Docker images are provided for the server side - you'll need to choose amd64 or arm64 as the recoll packages for those two platforms come from different package repos.
 
-<img width="290" src="images/RecollDroidUi_0.jpg?ref_type=heads">
-<img width="290" src="images/RecollDroidUi_1.jpg?ref_type=heads">
-<img width="290" src="images/RecollDroidUi_2.jpg?ref_type=heads">
-<img width="290" src="images/RecollDroidUi_3.jpg?ref_type=heads">
+<img width="290" src="images/RecollDroidUi_0.jpg?ref_type=heads" alt="User interface Image 1">
+<img width="290" src="images/RecollDroidUi_1.jpg?ref_type=heads" alt="User interface Image 2">
+<img width="290" src="images/RecollDroidUi_2.jpg?ref_type=heads" alt="User interface Image 3">
+<img width="290" src="images/RecollDroidUi_3.jpg?ref_type=heads" alt="User interface Image 4">
 
 - [Short demo](https://www.youtube.com/watch?v=6-GL3RcGAZk)
 
@@ -48,7 +48,7 @@ The RecollDroid server project can be found [here](https://gitlab.com/gbygrave/r
 If you get stuck, send direct email to recolldroid@bygrave.org
 
 ## Roadmap
-Make it easier to insatll and setup.  Upload front end apk to F-Droid and Google Play Store.  Provide documentation on setting up the backend.
+Add UI app bar icon as notification when awaiting an internal document extraction.
 
 ## Contributing
 Patches, suggestions, complaints welcome.

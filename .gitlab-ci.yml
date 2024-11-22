@@ -27,6 +27,8 @@ cache:
 
 build:
   stage: release
+  tags:
+    - android
   script:
     - curl --silent "https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer" | bash
     - ./gradlew clean assembleRelease
@@ -36,5 +38,7 @@ build:
 
 sast:
   stage: test
+  tags:
+    - android
 include:
 - template: Security/SAST.gitlab-ci.yml

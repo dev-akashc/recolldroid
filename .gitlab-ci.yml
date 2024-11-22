@@ -39,6 +39,6 @@ build:
 sast:
   stage: test
   tags:
-    - semgrep
+    - android
 include:
 - template: Security/SAST.gitlab-ci.yml

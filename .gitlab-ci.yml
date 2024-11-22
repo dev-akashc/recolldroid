@@ -38,7 +38,5 @@ build:
 
 sast:
   stage: test
-  tags:
-    - android
 include:
 - template: Security/SAST.gitlab-ci.yml

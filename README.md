@@ -11,11 +11,7 @@ My recoll indexes are computed independently on x86 hardware and rsync'd to the 
 The recolldroid android app requires that a signed cert be installed on the server when connecting.  If you don't already have one, this is free and straightforward to set up.  You will need a domain name visible to the internet (static or ddns) and a valid certificate for that domain (e.g. via letsencrypt / certbot). Self-signed certificates won't work, unfortunately.  There's currently no mechanism to upload a self-signed certificate that you trust to your phone to be used with the recolldroid app.
 
 # Status
-New project, still settling in so installation is rough just now (but improving).
-
-To install the UI at the moment, you'll need to install AndroidStudio and then grab the source and install to your device via a remote debug session.  The intention is upload this to FDroid and possibly Google Play Store (in that order).
-
-Docker images are provided for the server side - you'll need to choose amd64 or arm64 as the recoll packages for those two platforms come from different package repos.
+The app provides access to most (all?) functionality available via the Python API.  If you spot something missing, let me know.  Server side reporting of errors to the GUI is weak and deemed "ok for now" due to the fact you own the server too so can easily go and look at the logs there.  At some point I'll wrap all the exposed API calls in try/catch blocks.  Most of the errors you're likely to hit will be file permissioning ones.
 
 <img width="290" src="images/RecollDroidUi_0.jpg?ref_type=heads" alt="User interface Image 1">
 <img width="290" src="images/RecollDroidUi_1.jpg?ref_type=heads" alt="User interface Image 2">
@@ -26,12 +22,12 @@ Docker images are provided for the server side - you'll need to choose amd64 or 
 
 
 ## UI Installation
-To install the UI you'll have to install AndroidStudio on your machine and upload the app via a remote debug session.  The goal is to make the UI available on FDroid and possibly Google Play Store in the near future.
-To install the server, download one of the docker images from [here](https://gitlab.com/gbygrave/recolldroid-server/container_registry), making sure to select the right image for your hardware (either, amd64 or arm64).
-Docker images are made available to ease installation of the server in the first instance, however I imagine one would typically run nginx/nginx-unit/fast-api independently of recolldroid - perhaps in an incus system container or vm - to provide self hosted services generally and install recolldroid on top of this infrastructure.
+The easiest way to install the UI is via [F-Droid](https://f-droid.org/en/packages/org.grating.recolldroid/).  Alternatively, you can manually grab the [apk](https://gitlab.com/gbygrave/recolldroid/-/releases/v1.1/downloads/app-release.apk), or if you have AndroidStudio you can git clone the repository and install to your device via a remote debug session.  
 
 ### Server Installation
-The RecollDroid server project can be found [here](https://gitlab.com/gbygrave/recolldroid-server).  The server side code is fairly minimal is it only deals with connectivity to the recoll python api and leaves security, marshalling and communication to other things.  The only hard pre-requisites (without modifying the code) are FastAPI, the use of basic auth.  I personally set this up using Nginx and Nginx-Unit and that's what the docker images do, but other setups are certainly conceivable.
+Docker images are provided for the server side as a _hopefully_ easy way to get setup - you'll need to choose [amd64](https://gitlab.com/gbygrave/recolldroid-server/container_registry/8048769) or [arm64](https://gitlab.com/gbygrave/recolldroid-server/container_registry/8048770) depending on your target platform.
+
+The RecollDroid server project can be found [here](https://gitlab.com/gbygrave/recolldroid-server).  The server side code is fairly minimal is it only deals with connectivity to the recoll python api and leaves security, marshalling and communication to other things.  The only hard pre-requisites (without modifying the code) are FastAPI and the use of basic auth.  I personally set this up using Nginx and Nginx-Unit and that's what the docker images do, but other setups are certainly conceivable.
 
 #### Tested Server Stack
 > - Nginx

@@ -1,13 +1,5 @@
-RecollDroid is an Android front end to the Recoll full text search engine typically used
-to index all of your desktop/server files.  For more information on Recoll, see
-https://www.recoll.org
+RecollDroid is an Android front end to the Recoll full text search engine typically used to index all of your desktop/server files.  For more information on Recoll, see https://www.recoll.org
 
-RecollDroid consists of an andriod ui and a thin server layer providing a RestAPI interface
-to the Recoll software.  It uses Recoll's python API and supports multiple users securely
-via basic auth over https.
+RecollDroid consists of an andriod ui and a thin server layer providing a RestAPI interface to the Recoll software.  It uses Recoll's python API and supports multiple users securely via basic auth over https.
 
-The server layer makes use of FastAPI to provide the restful endpoints for the UI.  It
-contains no authentication code itself but depends on a proxying layer to ensure only
-validated users can connect.  The supported setup is to use the Nginx reverse proxy to
-perform basic auth together with the unit app server to host the recoll rest api.
-
+The [server layer](https://gitlab.com/gbygrave/recolldroid-server) makes use of FastAPI to provide the restful endpoints for the UI.  It contains no authentication code itself but depends on a proxying layer to ensure only validated users can connect.  The supported setup is to use the Nginx reverse proxy to perform basic auth together with the unit app server to host the recoll rest api.

@@ -16,7 +16,6 @@
  */
 package org.grating.recolldroid.data
 
-import android.util.Log
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import org.grating.recolldroid.ui.logError
@@ -33,6 +32,9 @@ class RecollPagingSource(
             val lastIdx = startIdx + loadSize - 1
 
             val rs = resultsRepository.executeQuery(query, startIdx, startIdx + params.loadSize - 1)
+
+            if (rs.error.isNotBlank())
+                throw RecollSearchException(rs.error)
 
             return LoadResult.Page(
                 data = rs.page,
@@ -57,3 +59,5 @@ class RecollPagingSource(
         return result.idx - state.config.pageSize / 2
     }
 }
+
+class RecollSearchException(msg: String): Exception(msg)

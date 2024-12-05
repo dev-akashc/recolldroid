@@ -148,7 +148,8 @@ fun QueryBar(
                         dropdownExpanded = false
                         keyboardController?.hide()
                     },
-                    modifier = Modifier.padding(4.dp)
+                    modifier = Modifier.padding(4.dp),
+                    enabled = uiState.currentQuery.text.isNotBlank()
                 ) {
                     Icon(imageVector = Icons.Outlined.Search,
                          contentDescription = stringResource(R.string.search_action))

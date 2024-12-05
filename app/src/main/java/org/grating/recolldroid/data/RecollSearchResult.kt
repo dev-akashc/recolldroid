@@ -25,6 +25,7 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import org.grating.recolldroid.data.RecollSearchResult.Companion.EMPTY_STR
 import org.grating.recolldroid.ui.secondsToLocalDate
 import java.net.URL
 import java.time.LocalDate
@@ -57,7 +58,10 @@ data class ResultSet(
 
     /** Page (or subset) of documents selected by the associated query. */
     @SerialName(value = "results")
-    val page: List<RecollSearchResult>
+    val page: List<RecollSearchResult>,
+
+    /** If an error occurs on the server and we catch it, the problem will be described here. **/
+    val error: String = EMPTY_STR
 ) {
     companion object {
         val NULL: ResultSet = ResultSet("No Query",

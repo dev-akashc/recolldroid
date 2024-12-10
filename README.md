@@ -24,6 +24,12 @@ The app provides access to most (all?) functionality available via the Python AP
 ## UI Installation
 The easiest way to install the UI is via [F-Droid](https://f-droid.org/en/packages/org.grating.recolldroid/).  Alternatively, you can manually grab the [apk](https://gitlab.com/gbygrave/recolldroid/-/releases/v1.1/downloads/app-release.apk), or if you have AndroidStudio you can git clone the repository and install to your device via a remote debug session.  
 
+[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
+     alt="Get it on F-Droid"
+     height="80">](https://f-droid.org/packages/org.grating.recolldroid/)
+
+Or download from the [Releases Section](https://gitlab.com/gbygrave/recolldroid/-/releases) here on Gitlab.
+
 ### Server Installation
 Docker images are provided for the server side as a _hopefully_ easy way to get setup - you'll need to choose [amd64](https://gitlab.com/gbygrave/recolldroid-server/container_registry/8048769) or [arm64](https://gitlab.com/gbygrave/recolldroid-server/container_registry/8048770) depending on your target platform.
 

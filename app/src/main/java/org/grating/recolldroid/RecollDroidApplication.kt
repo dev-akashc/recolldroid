@@ -17,9 +17,6 @@
 package org.grating.recolldroid
 
 import android.app.Application
-import androidx.lifecycle.findViewTreeLifecycleOwner
-import org.grating.recolldroid.data.AppContainer
-import org.grating.recolldroid.ui.RecollDroidAppContainer
 
 class RecollDroidApplication : Application() {
     lateinit var container: AppContainer

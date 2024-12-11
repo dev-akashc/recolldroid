@@ -24,7 +24,7 @@ import android.content.Intent
 import android.database.Cursor
 import android.net.Uri
 import org.grating.recolldroid.RecollDroidApplication
-import org.grating.recolldroid.data.DownloadedDocumentDetail
+import org.grating.recolldroid.DownloadedDocumentDetail
 import org.grating.recolldroid.network.HttpException
 import org.grating.recolldroid.network.httpReason
 

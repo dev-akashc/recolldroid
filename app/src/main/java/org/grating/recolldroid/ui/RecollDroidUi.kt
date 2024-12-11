@@ -64,9 +64,9 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import org.grating.recolldroid.R
-import org.grating.recolldroid.data.AppErrorState
+import org.grating.recolldroid.AppErrorState
 import org.grating.recolldroid.data.DocType
-import org.grating.recolldroid.data.DownloadedDocumentState
+import org.grating.recolldroid.DownloadedDocumentState
 import org.grating.recolldroid.ui.model.QueryFragment
 import org.grating.recolldroid.ui.model.RecollDroidViewModel
 import org.grating.recolldroid.ui.screens.CheatSheetScreen

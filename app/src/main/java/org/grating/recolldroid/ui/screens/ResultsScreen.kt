@@ -53,8 +53,8 @@ import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.flow.Flow
 import org.grating.recolldroid.R
-import org.grating.recolldroid.data.AlwaysIdleDownloadedDocumentLatch
-import org.grating.recolldroid.data.AlwaysOkErrorLatch
+import org.grating.recolldroid.AlwaysIdleDownloadedDocumentLatch
+import org.grating.recolldroid.AlwaysOkErrorLatch
 import org.grating.recolldroid.data.RecollSearchResult
 import org.grating.recolldroid.data.ResultSet
 import org.grating.recolldroid.data.fake.FakeResultsDataProvider

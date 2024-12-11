@@ -14,27 +14,24 @@
  *   Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-package org.grating.recolldroid.ui
+package org.grating.recolldroid
 
 import android.content.Context
+import android.net.Uri
 import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import okhttp3.Credentials
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
-import org.grating.recolldroid.data.AppContainer
-import org.grating.recolldroid.data.AppErrorState
 import org.grating.recolldroid.data.DefaultResultsRepository
-import org.grating.recolldroid.data.DownloadedDocumentDetail
-import org.grating.recolldroid.data.DownloadedDocumentLatch
-import org.grating.recolldroid.data.DownloadedDocumentState
-import org.grating.recolldroid.data.ErrorLatch
 import org.grating.recolldroid.data.RecollApiClient
 import org.grating.recolldroid.data.ResultsRepository
 import org.grating.recolldroid.network.BasicAuthOverHttpException
@@ -43,8 +40,55 @@ import org.grating.recolldroid.ui.data.DsSettingsRepository
 import org.grating.recolldroid.ui.data.RecollDroidSettings
 import org.grating.recolldroid.ui.data.SettingsRepository
 import org.grating.recolldroid.ui.data.SettingsSerializer
+import org.grating.recolldroid.ui.logError
 import retrofit2.Retrofit
 import java.util.concurrent.TimeUnit
+
+// Error Latch
+sealed interface AppErrorState {
+    data class Error(val msg: String, val t: Throwable) : AppErrorState
+    data object Ok : AppErrorState
+}
+
+class ErrorLatch(private val _errorFlow: MutableStateFlow<AppErrorState>) {
+    val errorFlow: StateFlow<AppErrorState> = _errorFlow.asStateFlow()
+    fun raiseError(msg: String, t: Throwable) {
+        _errorFlow.value = AppErrorState.Error(msg, t)
+    }
+    fun clearError() {
+        _errorFlow.value = AppErrorState.Ok
+    }
+}
+
+val AlwaysOkErrorLatch = ErrorLatch(MutableStateFlow(AppErrorState.Ok)) // For preview screens.
+
+// Downloaded document/file Latch
+data class DownloadedDocumentDetail(val uri: Uri, val mimeType: String)
+sealed interface DownloadedDocumentState {
+    class Ready(val detail: DownloadedDocumentDetail) : DownloadedDocumentState
+    data object Idle : DownloadedDocumentState
+}
+
+class DownloadedDocumentLatch(private val _downloadedDocumentFlow: MutableStateFlow<DownloadedDocumentState>) {
+    val downloadedDocumentFlow: StateFlow<DownloadedDocumentState> =
+        _downloadedDocumentFlow.asStateFlow()
+
+    fun clearDocument() {
+        _downloadedDocumentFlow.value = DownloadedDocumentState.Idle
+    }
+}
+
+val AlwaysIdleDownloadedDocumentLatch =
+    DownloadedDocumentLatch(MutableStateFlow(DownloadedDocumentState.Idle))
+
+interface AppContainer {
+    val errorLatch: ErrorLatch
+    fun signalError(msg: String = "", t: Throwable)
+    val downloadedDocumentLatch: DownloadedDocumentLatch
+    fun signalDocumentArrived(ddd: DownloadedDocumentDetail)
+    val resultsRepository: ResultsRepository
+    val settingsRepository: SettingsRepository
+}
 
 data class RecollRepositoryConnectionSettings(
     val baseUrl: String = "",

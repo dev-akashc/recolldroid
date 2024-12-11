@@ -37,8 +37,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.grating.recolldroid.RecollDroidApplication
-import org.grating.recolldroid.data.DownloadedDocumentLatch
-import org.grating.recolldroid.data.ErrorLatch
+import org.grating.recolldroid.DownloadedDocumentLatch
+import org.grating.recolldroid.ErrorLatch
 import org.grating.recolldroid.data.RecollSearchResult
 import org.grating.recolldroid.data.ResultsRepository
 import org.grating.recolldroid.network.BasicAuthOverHttpException

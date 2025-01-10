@@ -50,11 +50,3 @@ Contributions in the form of patches, suggestions, and issue reports are welcome
 # Authors and Acknowledgments
 
 Project maintained by Akash.
-
-# License
-
-This project is licensed under GPL version 3 or later.
-
-Project Status
-
-RecollDroid is under active development.

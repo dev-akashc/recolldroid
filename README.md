@@ -17,12 +17,16 @@ The recolldroid android app requires that a signed cert be installed on the serv
 # Status
 The app provides access to most (all?) functionality available via the Python API.  If you spot something missing, let me know.  Server side reporting of errors to the GUI is weak and deemed "ok for now" due to the fact you own the server too so can easily go and look at the logs there.  At some point I'll wrap all the exposed API calls in try/catch blocks.  Most of the errors you're likely to hit will be file permissioning ones.
 
+## Screenshots
 <img width="290" src="images/RecollDroidUi_0.jpg?ref_type=heads" alt="User interface Image 1">
 <img width="290" src="images/RecollDroidUi_1.jpg?ref_type=heads" alt="User interface Image 2">
 <img width="290" src="images/RecollDroidUi_2.jpg?ref_type=heads" alt="User interface Image 3">
 <img width="290" src="images/RecollDroidUi_3.jpg?ref_type=heads" alt="User interface Image 4">
 
-- [Short demo](https://www.youtube.com/watch?v=6-GL3RcGAZk)
+## Short Video Demo
+[<img src="metadata/en-US/images/Demo Video Still.png" 
+       alt="Demo Video"
+       height="200">](https://www.youtube.com/watch?v=6-GL3RcGAZk)
 
 
 ## UI Installation

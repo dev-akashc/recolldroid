@@ -1,4 +1,8 @@
 # RecollDroid (Android UI)
+<img src="https://gitlab.com/gbygrave/recolldroid/-/badges/release.svg">
+<img src="https://gitlab.com/gbygrave/recolldroid/badges/main/pipeline.svg?ignore_skipped=true">
+<img src="https://gitlab.com/gbygrave/recolldroid/badges/main/coverage.svg">
+
 RecollDroid is an Android (API >=26) front end and Python based back end for providing access to your recoll database(s) while away from your desktop.  Tested with a Linux back end, may work on others.
 
 Back end tested with Nginx acting as reverse proxy for handling security and forwarding and providing file access via WebDAV.  Server makes use of FastAPI to provide a RESTful API and runs in the Unit app server (for easy integration with Nginx).
